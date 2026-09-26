@@ -21,14 +21,15 @@ export const site = {
   github: 'https://github.com/saifrhman',
   linkedin: 'https://www.linkedin.com/in/saifurrhmn/',
   /**
-   * CV. `page` is the printable HTML CV built from the data files. `pdf` is
-   * optional: set it to a file under public/ (e.g. '/cv/saif-ur-rehman-cv.pdf')
-   * or to null to hide the download link. `npm run cv:pdf` regenerates the PDF
-   * from the /cv/ page.
+   * CV. `page` is the printable HTML CV built from the data files, and `pdf`
+   * is that page rendered to PDF by `npm run assets`. `resume` is the
+   * separately maintained résumé PDF. Set either file to null to hide its link.
    */
   cv: {
     page: '/cv/',
     pdf: '/cv/saif-ur-rehman-cv.pdf' as string | null,
+    /** The résumé document itself (replace the file to update it; null hides the links). */
+    resume: '/cv/saif-ur-rehman-resume.pdf' as string | null,
   },
   contactNote:
     'Email is the most reliable way to reach me. I am glad to hear about research collaborations, PhD and research-engineering positions, and questions about any of the work here.',
@@ -59,5 +60,8 @@ export const contactLinks: ContactLink[] = [
   { kind: 'email', label: 'Email', href: `mailto:${site.email}`, display: site.email },
   { kind: 'github', label: 'GitHub', href: site.github, display: 'github.com/saifrhman' },
   { kind: 'linkedin', label: 'LinkedIn', href: site.linkedin, display: 'linkedin.com/in/saifurrhmn' },
-  { kind: 'cv', label: 'CV', href: site.cv.page, display: 'Printable CV and PDF' },
+  { kind: 'cv', label: 'CV', href: site.cv.page, display: 'Printable CV page' },
+  ...(site.cv.resume
+    ? [{ kind: 'cv' as const, label: 'Résumé', href: site.cv.resume, display: 'PDF, 2 pages' }]
+    : []),
 ];

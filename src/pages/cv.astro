@@ -24,13 +24,26 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
   <div class="container page">
     <div class="toolbar">
       <p class="label">Curriculum vitae</p>
-      {
-        site.cv.pdf && (
-          <a class="arrow-link" href={site.cv.pdf} download>
-            Download PDF
-          </a>
-        )
-      }
+      <ul class="downloads" role="list">
+        {
+          site.cv.resume && (
+            <li>
+              <a class="arrow-link" href={site.cv.resume} type="application/pdf">
+                Résumé (PDF)
+              </a>
+            </li>
+          )
+        }
+        {
+          site.cv.pdf && (
+            <li>
+              <a class="arrow-link" href={site.cv.pdf} download>
+                This page as PDF
+              </a>
+            </li>
+          )
+        }
+      </ul>
     </div>
 
     <article class="cv">
@@ -154,12 +167,19 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
 
   .toolbar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: var(--space-4);
     max-width: 52rem;
     margin: 0 auto var(--space-5);
     font-size: var(--text-sm);
+  }
+
+  .downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
   }
 
   .cv {

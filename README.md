@@ -33,7 +33,7 @@ src/
   scripts/        Client scripts: theme, reveal, hero-figure, hero-scene (three.js)
   styles/         tokens.css, base.css, figures.css
   assets/         Images that go through Astro's image pipeline (converted to WebP)
-public/           favicon, og.png, robots.txt, cv/saif-ur-rehman-cv.pdf
+public/           favicon, og.png, robots.txt, cv/ (generated CV PDF and résumé PDF)
 scripts/          render-assets.mjs (renders og.png and the CV PDF)
 tests/            Vitest suites (content, status rules, geometry, built output)
 ```
@@ -122,7 +122,9 @@ The `/cv/` page is generated from the same data files, so it cannot drift from t
 npm run assets     # builds, then renders public/cv/saif-ur-rehman-cv.pdf and public/og.png
 ```
 
-This uses a local Chrome or Chromium; set `CHROME_PATH` if it is not found. To use a different PDF instead, put it in `public/cv/` and set `site.cv.pdf` in `src/data/site.ts`. Set it to `null` to hide the download link.
+This uses a local Chrome or Chromium; set `CHROME_PATH` if it is not found.
+
+The résumé is a separate, hand-maintained PDF at `public/cv/saif-ur-rehman-resume.pdf`, linked from the About page, the CV page and the contact section. To update it, replace that file (keep the name, or change `site.cv.resume` in `src/data/site.ts`). Set `site.cv.resume` or `site.cv.pdf` to `null` to hide the corresponding link.
 
 ### Social preview image
 
