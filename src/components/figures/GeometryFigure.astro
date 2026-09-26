@@ -1,0 +1,89 @@
+---
+/**
+ * Illustration of the reliability question for feed-forward geometry models:
+ * a camera, rays through the image, predicted depth intervals along each ray
+ * and the true surface. Intervals that miss the surface are marked.
+ */
+import { mulberry32, gaussian, r1 } from '@/lib/random';
+
+const W = 400;
+const H = 300;
+const cam = { x: 46, y: 150 };
+const rand = mulberry32(4);
+
+// True surface: a smooth curve on the right-hand side.
+const surfaceX = (y: number) => 300 + 34 * Math.sin((y - 40) / 52) + 16 * Math.cos((y - 40) / 23);
+const surface = Array.from({ length: 49 }, (_, i) => {
+  const y = 30 + i * 5;
+  return `${i === 0 ? 'M' : 'L'}${r1(surfaceX(y))} ${r1(y)}`;
+}).join('');
+
+const rays = Array.from({ length: 9 }, (_, i) => {
+  const t = i / 8;
+  const targetY = 46 + t * 208;
+  const dx = surfaceX(targetY) - cam.x;
+  const dy = targetY - cam.y;
+  const len = Math.hypot(dx, dy);
+  const ux = dx / len;
+  const uy = dy / len;
+  // Spread grows towards the edge of the view, where support is weaker.
+  const edge = Math.abs(t - 0.5) * 2;
+  const halfWidth = 9 + 22 * edge * edge + rand() * 4;
+  const bias = gaussian(rand) * (4 + 20 * edge * edge) + (i === 1 ? -34 : 0) + (i === 7 ? 30 : 0);
+  const centre = len + bias;
+  const lo = centre - halfWidth;
+  const hi = centre + halfWidth;
+  const covered = len >= lo && len <= hi;
+  return {
+    ux,
+    uy,
+    len,
+    centre,
+    lo,
+    hi,
+    covered,
+    end: { x: cam.x + ux * (len + 46), y: cam.y + uy * (len + 46) },
+  };
+});
+const at = (ux: number, uy: number, d: number) => ({ x: r1(cam.x + ux * d), y: r1(cam.y + uy * d) });
+const missed = rays.filter((r) => !r.covered).length;
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label={`Illustration: a camera casts nine rays toward a curved surface. Along each ray a predicted depth interval is drawn; ${missed} of the nine intervals miss the true surface and are marked in the accent colour. Coverage is the fraction of intervals that contain the truth.`}
+>
+  <path class="s-ink medium round" d={surface}></path>
+  <text class="t-muted t-small" x="336" y="24">true surface</text>
+
+  {
+    rays.map((r) => {
+      const a = at(r.ux, r.uy, 18);
+      const b = at(r.ux, r.uy, r.len + 46);
+      const lo = at(r.ux, r.uy, r.lo);
+      const hi = at(r.ux, r.uy, r.hi);
+      const c = at(r.ux, r.uy, r.centre);
+      const cls = r.covered ? 's-ink' : 's-accent';
+      return (
+        <g>
+          <line class="s-rule hair dotted" x1={a.x} y1={a.y} x2={b.x} y2={b.y} />
+          <line class={`${cls} thick round`} x1={lo.x} y1={lo.y} x2={hi.x} y2={hi.y} opacity={r.covered ? 0.55 : 0.9} />
+          <circle class={r.covered ? 'f-ink' : 'f-accent'} cx={c.x} cy={c.y} r="2.4" />
+        </g>
+      );
+    })
+  }
+
+  <path class="f-surface s-ink medium round" d={`M${cam.x} ${cam.y} L ${cam.x + 26} ${cam.y - 18} L ${cam.x + 26} ${cam.y + 18} Z`}></path>
+  <line class="s-ink medium" x1={cam.x + 26} x2={cam.x + 26} y1={cam.y - 18} y2={cam.y + 18}></line>
+  <text class="t-muted t-small" x={cam.x - 18} y={cam.y + 34}>camera</text>
+
+  <g transform="translate(24 252)">
+    <line class="s-ink thick round" x1="0" x2="18" y1="0" y2="0" opacity="0.55"></line>
+    <text x="26" y="3">interval contains surface</text>
+    <line class="s-accent thick round" x1="0" x2="18" y1="16" y2="16"></line>
+    <text class="t-accent" x="26" y="19">interval misses ({missed}/9)</text>
+  </g>
+</svg>

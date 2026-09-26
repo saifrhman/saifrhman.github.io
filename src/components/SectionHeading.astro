@@ -1,0 +1,74 @@
+---
+interface Props {
+  title: string;
+  id?: string;
+  /** Small mono label above the title, e.g. "Research". */
+  eyebrow?: string;
+  description?: string;
+  link?: { label: string; href: string };
+  level?: 1 | 2;
+}
+
+const { title, id, eyebrow, description, link, level = 2 } = Astro.props;
+const Heading = level === 1 ? 'h1' : 'h2';
+---
+
+<div class:list={['section-heading', { 'is-page': level === 1 }]}>
+  <div class="text">
+    {eyebrow && <p class="label eyebrow">{eyebrow}</p>}
+    <Heading id={id} class="title">{title}</Heading>
+    {description && <p class="description">{description}</p>}
+  </div>
+  {
+    link && (
+      <a class="arrow-link more" href={link.href}>
+        {link.label}
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+    padding-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
+    border-bottom: var(--border);
+  }
+
+  .text {
+    max-width: var(--measure-wide);
+  }
+
+  .eyebrow {
+    margin-bottom: var(--space-3);
+  }
+
+  .title {
+    font-size: var(--text-2xl);
+  }
+
+  .is-page .title {
+    font-size: var(--text-3xl);
+    font-weight: 400;
+  }
+
+  .description {
+    margin-top: var(--space-4);
+    color: var(--color-ink-2);
+    max-width: var(--measure);
+  }
+
+  .is-page .description {
+    font-size: var(--text-md);
+  }
+
+  .more {
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+</style>

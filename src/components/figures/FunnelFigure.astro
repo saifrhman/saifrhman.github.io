@@ -1,0 +1,51 @@
+---
+/**
+ * PDBClean population funnel. Counts are from the dissertation (Table 4.1)
+ * and the public repository's provenance record.
+ */
+const W = 400;
+const H = 300;
+const stages = [
+  { label: 'candidate chains', note: 'model 1, protein', n: 1_012_527 },
+  { label: 'eligible', note: 'cleaned + validated', n: 578_524 },
+  { label: 'geometric de-dup', note: 'BRI L∞ ≤ 0.010 Å', n: 499_770, accent: true },
+  { label: 'one per sequence', note: 'MMseqs2 100% id.', n: 142_056 },
+];
+const x0 = 16;
+const maxW = 250;
+const top = 40;
+const gap = 56;
+const max = stages[0]!.n;
+const fmt = (n: number) => n.toLocaleString('en-GB');
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label={`Population funnel: ${stages.map((s) => `${s.label} ${fmt(s.n)}`).join(', ')}.`}
+>
+  <text class="t-muted" x={x0} y="24">chains retained at each stage (PDB snapshot, 1 Jan 2026)</text>
+  {
+    stages.map((s, i) => {
+      const y = top + i * gap;
+      const w = (s.n / max) * maxW;
+      return (
+        <g>
+          <rect class={s.accent ? 'f-accent' : i === stages.length - 1 ? 'f-muted' : 'f-ink'} x={x0} y={y + 14} width={w} height="14" rx="1.5" opacity={s.accent ? 1 : 0.9} />
+          <text class="t-strong" x={x0} y={y + 8}>
+            {s.label}
+          </text>
+          <text class="t-muted t-small" x={x0 + maxW} y={y + 8} text-anchor="end">
+            {s.note}
+          </text>
+          <text class={s.accent ? 't-accent' : ''} x={x0 + w + 8} y={y + 25}>
+            {fmt(s.n)}
+          </text>
+        </g>
+      );
+    })
+  }
+  <text class="t-muted t-small" x={x0} y={top + stages.length * gap + 4}>78,754 geometric removals; 99.5% are sequence-identical</text>
+  <text class="t-muted t-small" x={x0} y={top + stages.length * gap + 18}>to their representative. OpenFold retraining: in progress.</text>
+</svg>

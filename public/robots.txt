@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://saifrhman.github.io/sitemap-index.xml

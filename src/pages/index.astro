@@ -1,0 +1,320 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroFigure from '@/components/HeroFigure.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import ResearchRow from '@/components/ResearchRow.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import PublicationItem from '@/components/PublicationItem.astro';
+import { site } from '@/data/site';
+import { research } from '@/data/research';
+import { projects } from '@/data/projects';
+import { publications } from '@/data/publications';
+import { experience, education } from '@/data/experience';
+import { personJsonLd, websiteJsonLd } from '@/lib/structured-data';
+
+const featured = projects.filter((p) => p.featured);
+const current = experience[0]!;
+---
+
+<BaseLayout type="profile" jsonLd={[personJsonLd(), websiteJsonLd()]}>
+  <section class="hero container" aria-labelledby="hero-title">
+    <div class="hero-text">
+      <p class="label eyebrow">{site.affiliation}</p>
+      <h1 id="hero-title">{site.name}</h1>
+      <p class="role">{site.role}</p>
+      <p class="statement">
+        I work on the reliability of learned systems: whether 3D/4D geometry models use the evidence in their input, what
+        language-model agents learn when their reward is another model’s judgement, and how redundancy in protein training
+        data should be measured. Alongside research I build ML systems end to end, from retrieval and data pipelines to
+        the evaluation that shows whether they work.
+      </p>
+      <div class="actions">
+        <a class="button is-primary" href="/research/">Research</a>
+        <a class="button" href="/projects/">Selected projects</a>
+      </div>
+      <ul class="elsewhere" role="list" aria-label="Elsewhere">
+        <li><a href={site.github} rel="noopener">GitHub</a></li>
+        <li><a href={site.linkedin} rel="noopener">LinkedIn</a></li>
+        <li><a href={site.cv.page}>CV</a></li>
+        <li><a href={`mailto:${site.email}`}>Email</a></li>
+      </ul>
+    </div>
+    <div class="hero-figure-wrap">
+      <HeroFigure />
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="current-research">
+    <SectionHeading
+      id="current-research"
+      eyebrow="Research"
+      title="Current research"
+      link={{ label: 'Research in detail', href: '/research/' }}
+    />
+    <ol class="research-list" role="list">
+      {research.map((entry, i) => <ResearchRow entry={entry} index={i} />)}
+    </ol>
+  </section>
+
+  <section class="section container" aria-labelledby="selected-projects">
+    <SectionHeading
+      id="selected-projects"
+      eyebrow="Engineering"
+      title="Selected projects"
+      link={{ label: 'All projects', href: '/projects/' }}
+    />
+    <div class="projects">
+      {featured.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="about-heading">
+    <div class="about">
+      <div class="about-text">
+        <p class="label eyebrow">About</p>
+        <h2 id="about-heading" class="about-title">Research and engineering, in roughly equal parts</h2>
+        <p>
+          I am completing an MSc in Data Science and Artificial Intelligence at the University of Liverpool, where my
+          dissertation built PDBClean. Before that I spent nearly five years in systems, cloud and support engineering,
+          which is why I care about the machinery around a model (provenance, tests, failure modes) as much as the model
+          itself.
+        </p>
+        <a class="arrow-link" href="/about/">Background and experience</a>
+      </div>
+      <dl class="facts">
+        <div>
+          <dt>Now</dt>
+          <dd>{current.role}, {current.organisation}</dd>
+        </div>
+        <div>
+          <dt>Education</dt>
+          <dd>
+            {
+              education.map((e) => (
+                <span class="edu">
+                  {e.degree}, {e.institution.replace(/ \(.*\)/, '')} ({e.start}–{e.end})
+                </span>
+              ))
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Based in</dt>
+          <dd>{site.location}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="output-heading">
+    <SectionHeading
+      id="output-heading"
+      eyebrow="Research output"
+      title="Papers and manuscripts"
+      description="Nothing here is published yet. Each entry states exactly where it stands."
+    />
+    <ol class="publications" role="list">
+      {publications.map((entry) => <PublicationItem entry={entry} />)}
+    </ol>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: center;
+    padding-top: clamp(3rem, 2rem + 5vw, 6rem);
+  }
+
+  @media (min-width: 60rem) {
+    .hero {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .eyebrow {
+    margin-bottom: var(--space-4);
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+  }
+
+  .role {
+    margin-top: var(--space-3);
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: var(--color-ink-2);
+    line-height: 1.25;
+  }
+
+  .statement {
+    margin-top: var(--space-6);
+    max-width: 36rem;
+    font-size: var(--text-md);
+    line-height: 1.6;
+    color: var(--color-ink-2);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--color-rule-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-ink);
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .button::after {
+    content: '→';
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .button:hover {
+    border-color: var(--color-ink);
+  }
+
+  .button:hover::after {
+    transform: translateX(3px);
+  }
+
+  .button.is-primary {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  .button.is-primary:hover {
+    background: color-mix(in srgb, var(--color-ink) 86%, var(--color-accent));
+  }
+
+  .elsewhere {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .elsewhere a {
+    color: var(--color-ink-2);
+    text-decoration: none;
+  }
+
+  .elsewhere a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+
+  .hero-figure-wrap {
+    width: 100%;
+    max-width: 34rem;
+    justify-self: center;
+  }
+
+  @media (max-width: 59.99rem) {
+    .hero-figure-wrap {
+      max-width: 28rem;
+      justify-self: start;
+    }
+  }
+
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding: var(--space-7) 0;
+    border-top: var(--border);
+    border-bottom: var(--border);
+  }
+
+  @media (min-width: 52rem) {
+    .about {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .about-title {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .about-text {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    max-width: var(--measure);
+  }
+
+  .about-text p:not(.label) {
+    color: var(--color-ink-2);
+  }
+
+  .about-text .eyebrow {
+    margin-bottom: 0;
+  }
+
+  .facts {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    font-size: var(--text-sm);
+  }
+
+  .facts div {
+    display: grid;
+    gap: var(--space-1);
+    padding-bottom: var(--space-4);
+    border-bottom: var(--border);
+  }
+
+  .facts div:last-child {
+    border-bottom: 0;
+  }
+
+  dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+
+  dd {
+    color: var(--color-ink);
+  }
+
+  .edu {
+    display: block;
+  }
+
+  .edu + .edu {
+    margin-top: var(--space-1);
+  }
+</style>

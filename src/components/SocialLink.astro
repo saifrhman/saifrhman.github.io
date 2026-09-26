@@ -1,0 +1,75 @@
+---
+import type { ContactLink } from '@/data/site';
+
+type Props = ContactLink;
+
+const { kind, label, href, display } = Astro.props;
+const external = href.startsWith('http');
+
+const paths: Record<ContactLink['kind'], string> = {
+  email: 'M2.5 5h15v10h-15z M2.5 5.5l7.5 6 7.5-6',
+  github:
+    'M10 2.2a7.9 7.9 0 0 0-2.5 15.4c.4.1.5-.2.5-.4v-1.4c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.2 1.9.9 2.3.7.1-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-3.9 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3-1.8 3.7-3.6 3.9.3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A7.9 7.9 0 0 0 10 2.2z',
+  linkedin:
+    'M4.2 7.6h2.6v8.2H4.2zM5.5 3.6a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm3 4h2.5v1.1c.4-.7 1.2-1.3 2.5-1.3 2.6 0 3.1 1.7 3.1 3.9v4.5H14v-4c0-1 0-2.2-1.3-2.2-1.4 0-1.6 1-1.6 2.1v4.1H8.5z',
+  cv: 'M5 2.5h7l3 3v12H5z M12 2.5v3h3 M7.5 9.5h5 M7.5 12h5 M7.5 14.5h3',
+  scholar: 'M10 3 2 8l8 5 8-5z M5 10v4c1.5 1.5 3.3 2 5 2s3.5-.5 5-2v-4',
+};
+const filled = kind === 'github' || kind === 'linkedin';
+---
+
+<a
+  class="social"
+  href={href}
+  {...external ? { rel: 'noopener', 'data-external': '' } : {}}
+>
+  <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+    <path
+      d={paths[kind]}
+      fill={filled ? 'currentColor' : 'none'}
+      stroke={filled ? 'none' : 'currentColor'}
+      stroke-width="1.3"
+      stroke-linejoin="round"
+      stroke-linecap="round"></path>
+  </svg>
+  <span class="label-text">{label}</span>
+  {display && <span class="display">{display}</span>}
+</a>
+
+<style>
+  .social {
+    display: inline-grid;
+    grid-template-columns: 1.25rem auto;
+    align-items: center;
+    column-gap: var(--space-3);
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  svg {
+    color: var(--color-ink-3);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .social:hover svg {
+    color: var(--color-accent);
+  }
+
+  .label-text {
+    font-weight: 500;
+  }
+
+  .social:hover .label-text {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .display {
+    grid-column: 2;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-ink-3);
+    overflow-wrap: anywhere;
+  }
+</style>

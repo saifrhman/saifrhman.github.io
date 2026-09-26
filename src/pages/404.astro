@@ -1,0 +1,44 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found" noindex>
+  <div class="container page">
+    <p class="label">404</p>
+    <h1>This page does not exist.</h1>
+    <p class="text">
+      It may have moved when the site was rebuilt. The research, projects and CV are all reachable from here:
+    </p>
+    <ul role="list">
+      <li><a class="arrow-link" href="/">Home</a></li>
+      <li><a class="arrow-link" href="/research/">Research</a></li>
+      <li><a class="arrow-link" href="/projects/">Projects</a></li>
+      <li><a class="arrow-link" href="/cv/">CV</a></li>
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-block: clamp(4rem, 3rem + 6vw, 8rem) 0;
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    font-weight: 400;
+  }
+
+  .text {
+    color: var(--color-ink-2);
+    max-width: var(--measure);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+  }
+</style>

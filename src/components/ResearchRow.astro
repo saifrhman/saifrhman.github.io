@@ -1,0 +1,116 @@
+---
+import type { ResearchEntry } from '@/data/types';
+import StatusBadge from '@/components/StatusBadge.astro';
+import { firstSentence } from '@/lib/text';
+
+interface Props {
+  entry: ResearchEntry;
+  index: number;
+}
+
+const { entry, index } = Astro.props;
+// The first sentence of the question is enough for a scannable list.
+const teaser = firstSentence(entry.question);
+---
+
+<li class="row" data-reveal>
+  <span class="index label" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+  <div class="main">
+    <p class="label area">{entry.area}</p>
+    <h3 class="title">
+      <a href={`/research/#${entry.slug}`}>{entry.title}</a>
+    </h3>
+    <p class="question">{teaser}</p>
+  </div>
+  <div class="meta">
+    <StatusBadge status={entry.status} venue={entry.venue} layout="stack" />
+  </div>
+</li>
+
+<style>
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-2) var(--space-5);
+    padding: var(--space-5) var(--space-3) var(--space-5) 0;
+    border-top: var(--border);
+    transition: background-color var(--duration-base) var(--ease-out);
+  }
+
+  .row:first-child {
+    border-top: 0;
+  }
+
+  @media (min-width: 52rem) {
+    .row {
+      grid-template-columns: 3.5rem minmax(0, 1fr) 15rem;
+    }
+  }
+
+  .row:hover {
+    background: linear-gradient(to right, transparent, var(--color-surface) 12%, var(--color-surface));
+  }
+
+  .index {
+    padding-top: 0.2rem;
+    color: var(--color-accent);
+  }
+
+  .main {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .area {
+    color: var(--color-ink-3);
+  }
+
+  .title {
+    font-size: var(--text-lg);
+    line-height: 1.25;
+  }
+
+  .title a {
+    text-decoration: none;
+  }
+
+  /* Stretch the title link over the whole row. */
+  .title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .title a:focus-visible {
+    outline: none;
+  }
+
+  .title a:focus-visible::after {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .row:hover .title a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .question {
+    color: var(--color-ink-2);
+    max-width: var(--measure);
+  }
+
+  .meta {
+    grid-column: 2;
+  }
+
+  @media (min-width: 52rem) {
+    .meta {
+      grid-column: 3;
+      padding-top: 0.2rem;
+    }
+  }
+</style>

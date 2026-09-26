@@ -1,0 +1,306 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import { site } from '@/data/site';
+import { education, experience, competitions, certifications, skills } from '@/data/experience';
+---
+
+<BaseLayout
+  title="About"
+  description="Background, experience and education of Saif Ur Rehman: MSc Data Science and AI at the University of Liverpool, applied AI internship, and earlier systems and cloud engineering."
+>
+  <div class="container page">
+    <SectionHeading level={1} eyebrow="About" title="About" />
+
+    <div class="intro">
+      <div class="prose bio">
+        <p class="lead">
+          I work across AI research and machine learning engineering. My research is about the reliability of learned
+          systems: whether geometry foundation models use the evidence in their input and whether their uncertainty can
+          be trusted, what language-model agents learn when they are trained on each other’s judgements, and how the
+          training data of protein structure models should be deduplicated.
+        </p>
+        <p>
+          I am completing an MSc in Data Science and Artificial Intelligence at the University of Liverpool. My
+          dissertation built PDBClean, a geometry-aware curation pipeline for the Protein Data Bank whose output now
+          feeds an OpenFold retraining run, and I co-authored a study of peer-reward misalignment in multi-agent LLMs
+          that is under review at a NeurIPS 2026 workshop. I also work as an applied AI intern on real-time detection
+          and redaction of confidential information in screen shares.
+        </p>
+        <p>
+          Before the MSc I spent nearly five years in systems, cloud and support engineering. That shapes how I build:
+          data provenance, tests, and a clear account of what a system has and has not been shown to do.
+        </p>
+      </div>
+      <aside class="quick" aria-label="At a glance">
+        <dl>
+          <div>
+            <dt>Based in</dt>
+            <dd>{site.location}</dd>
+          </div>
+          <div>
+            <dt>Interests</dt>
+            <dd>Geometry and 3D/4D vision · uncertainty and calibration · multi-agent AI safety · scientific ML</dd>
+          </div>
+          <div>
+            <dt>Contact</dt>
+            <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+          </div>
+        </dl>
+        <a class="arrow-link" href={site.cv.page}>Printable CV</a>
+      </aside>
+    </div>
+
+    <section class="block" aria-labelledby="experience-h">
+      <h2 id="experience-h" class="block-title">Experience</h2>
+      <ol class="timeline" role="list">
+        {
+          experience.map((item) => (
+            <li>
+              <p class="when label">
+                {item.start} – {item.end}
+              </p>
+              <div>
+                <h3>
+                  {item.role}
+                  <span class="org">
+                    , {item.organisation}
+                    {item.location && <span class="loc"> · {item.location}</span>}
+                  </span>
+                </h3>
+                <p>{item.summary}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="block" aria-labelledby="education-h">
+      <h2 id="education-h" class="block-title">Education</h2>
+      <ol class="timeline" role="list">
+        {
+          education.map((item) => (
+            <li>
+              <p class="when label">
+                {item.start} – {item.end}
+              </p>
+              <div>
+                <h3>
+                  {item.degree}
+                  <span class="org">, {item.institution}</span>
+                </h3>
+                {item.detail && <p>{item.detail}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="block" aria-labelledby="skills-h">
+      <h2 id="skills-h" class="block-title">Skills</h2>
+      <div class="skills">
+        {
+          skills.map((group) => (
+            <div class="skill-group">
+              <h3 class="label">{group.title}</h3>
+              <ul role="list">
+                {group.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="competitions-h">
+      <h2 id="competitions-h" class="block-title">Competitions</h2>
+      <ul class="plain" role="list">
+        {
+          competitions.map((c) => (
+            <li>
+              <span class="c-title">{c.href ? <a href={c.href} rel="noopener">{c.title}</a> : c.title}</span>
+              <span class="c-detail">{c.detail}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <h3 class="label cert-title">Certifications</h3>
+      <p class="certs">{certifications.join(' · ')}</p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-top: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
+  @media (min-width: 60rem) {
+    .intro {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .bio p:not(.lead) {
+    color: var(--color-ink-2);
+  }
+
+  .bio .lead {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    line-height: 1.45;
+    color: var(--color-ink);
+  }
+
+  .quick {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    justify-items: start;
+    padding: var(--space-5);
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    font-size: var(--text-sm);
+  }
+
+  .quick dl {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    margin-bottom: var(--space-1);
+  }
+
+  dd a {
+    overflow-wrap: anywhere;
+  }
+
+  .block {
+    margin-top: var(--space-9);
+  }
+
+  .block-title {
+    font-size: var(--text-xl);
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
+    border-bottom: var(--border);
+  }
+
+  .timeline li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1) var(--space-6);
+    padding-block: var(--space-4);
+    border-bottom: var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .timeline li {
+      grid-template-columns: 11rem minmax(0, 1fr);
+    }
+  }
+
+  .when {
+    padding-top: 0.25em;
+  }
+
+  .timeline h3 {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .org {
+    font-weight: 400;
+    color: var(--color-ink-2);
+  }
+
+  .loc {
+    color: var(--color-ink-3);
+  }
+
+  .timeline p:not(.label) {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    max-width: var(--measure-wide);
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-top: var(--space-4);
+  }
+
+  @media (min-width: 48rem) {
+    .skills {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .skill-group h3 {
+    font-family: var(--font-mono);
+    margin-bottom: var(--space-3);
+  }
+
+  .skill-group ul {
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .plain li {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-3);
+    border-bottom: var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .plain li {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .c-title {
+    font-weight: 500;
+  }
+
+  .c-detail {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .cert-title {
+    font-family: var(--font-mono);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-2);
+  }
+
+  .certs {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+</style>

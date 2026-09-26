@@ -1,0 +1,118 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import ResearchCard from '@/components/ResearchCard.astro';
+import PublicationItem from '@/components/PublicationItem.astro';
+import StatusBadge from '@/components/StatusBadge.astro';
+import { research } from '@/data/research';
+import { publications } from '@/data/publications';
+---
+
+<BaseLayout
+  title="Research"
+  description="Research by Saif Ur Rehman on evidence and uncertainty in geometry foundation models, peer-reward misalignment in multi-agent LLMs, geometry-aware curation of protein structure data, and machine learning for mangrove conservation."
+>
+  <div class="container page">
+    <SectionHeading
+      level={1}
+      eyebrow="Research"
+      title="Research"
+      description="Four lines of work on the reliability of learned systems and the data they learn from. Each entry states its status exactly; a target venue is where a manuscript is headed, not where it has appeared."
+    />
+
+    <nav class="toc" aria-label="Research lines">
+      <ol role="list">
+        {
+          research.map((entry, i) => (
+            <li>
+              <a href={`#${entry.slug}`}>
+                <span class="toc-index" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="toc-title">{entry.shortTitle}</span>
+              </a>
+              <StatusBadge status={entry.status} venue={entry.venue} />
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="entries">
+      {research.map((entry, i) => <ResearchCard entry={entry} index={i} />)}
+    </div>
+
+    <section class="output" aria-labelledby="output-heading">
+      <SectionHeading
+        id="output-heading"
+        eyebrow="Research output"
+        title="Papers and manuscripts"
+        description="Nothing here is published yet. Links appear once a preprint or paper is public."
+      />
+      <ol role="list">
+        {publications.map((entry) => <PublicationItem entry={entry} />)}
+      </ol>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-top: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .toc {
+    margin-bottom: var(--space-8);
+  }
+
+  .toc ol {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    border-top: var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .toc ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-6);
+    }
+  }
+
+  .toc li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4) 0;
+    border-bottom: var(--border);
+  }
+
+  .toc a {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    text-decoration: none;
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+  }
+
+  .toc a:hover .toc-title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .toc-index {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    min-width: 1.5rem;
+  }
+
+  .toc li > :global(.status) {
+    padding-left: calc(1.5rem + var(--space-3));
+  }
+
+  .output {
+    margin-top: var(--space-9);
+  }
+</style>

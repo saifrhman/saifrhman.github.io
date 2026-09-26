@@ -1,0 +1,66 @@
+---
+/**
+ * Schematic of the F1 regulations pipeline: retrieved passages ranked by
+ * similarity, a minimum-score cut, an answer whose citations, rule numbers and
+ * figures are checked against the cited passages, and a decline path.
+ */
+const W = 400;
+const H = 300;
+const passages = [0.92, 0.84, 0.77, 0.63, 0.41, 0.33];
+const cut = 3.5; // passages below this index fall under the minimum score
+const barMax = 58;
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label="Schematic: retrieved regulation passages ranked by similarity with a minimum-score cut; passages above it become labelled excerpts; the generated answer's citations, rule identifiers and numbers are checked against the cited excerpts, and an answer citing an invented article is declined."
+>
+  <text class="t-muted" x="20" y="26">retrieved passages</text>
+  {
+    passages.map((score, i) => {
+      const y = 38 + i * 36;
+      const kept = i < cut;
+      return (
+        <g opacity={kept ? 1 : 0.45}>
+          <rect class="f-surface s-rule thin" x="20" y={y} width="92" height="26" rx="3" />
+          <line class="s-muted thin" x1="28" x2="96" y1={y + 9} y2={y + 9} />
+          <line class="s-muted thin" x1="28" x2="84" y1={y + 17} y2={y + 17} />
+          <rect class={kept ? 'f-ink' : 'f-muted'} x="120" y={y + 9} width={score * barMax} height="8" rx="1" />
+          {kept && (
+            <text class="t-strong" x="186" y={y + 16}>
+              S{i + 1}
+            </text>
+          )}
+        </g>
+      );
+    })
+  }
+  <line class="s-accent thin dashed" x1="148" x2="148" y1="34" y2="258"></line>
+  <text class="t-accent t-small" x="152" y="268">min score</text>
+
+  <path class="s-rule thin" d="M204 58 C 224 58, 224 110, 244 110"></path>
+  <path class="s-rule thin" d="M204 94 C 224 94, 224 118, 244 118"></path>
+  <path class="s-rule thin" d="M204 130 C 224 130, 224 126, 244 126"></path>
+
+  <text class="t-muted" x="248" y="26">answer + checks</text>
+  <rect class="f-surface s-ink thin" x="248" y="38" width="136" height="138" rx="4"></rect>
+  <line class="s-muted thin" x1="258" x2="352" y1="56" y2="56"></line>
+  <rect class="f-soft s-ink hair" x="354" y="50" width="22" height="12" rx="2"></rect>
+  <text class="t-strong t-small" x="358" y="59">S1</text>
+  <line class="s-muted thin" x1="258" x2="330" y1="76" y2="76"></line>
+  <rect class="f-soft s-ink hair" x="332" y="70" width="22" height="12" rx="2"></rect>
+  <text class="t-strong t-small" x="336" y="79">S3</text>
+  <line class="s-muted thin" x1="258" x2="340" y1="96" y2="96"></line>
+  <rect class="f-accent-soft s-accent hair" x="342" y="90" width="34" height="12" rx="2"></rect>
+  <text class="t-accent t-small" x="346" y="99">Z1.1</text>
+
+  <text class="t-small" x="258" y="124">✓ citations resolve</text>
+  <text class="t-small" x="258" y="140">✓ numbers in cited text</text>
+  <text class="t-accent t-small" x="258" y="156">✗ rule id not in evidence</text>
+
+  <path class="s-accent thin" d="M316 176 V 204"></path>
+  <rect class="f-accent-soft s-accent thin" x="258" y="204" width="116" height="30" rx="4"></rect>
+  <text class="t-accent" x="316" y="223" text-anchor="middle">decline</text>
+</svg>

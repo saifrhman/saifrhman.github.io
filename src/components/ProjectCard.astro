@@ -1,0 +1,175 @@
+---
+import type { ProjectEntry } from '@/data/types';
+import Figure from '@/components/figures/Figure.astro';
+import TechTag from '@/components/TechTag.astro';
+
+interface Props {
+  project: ProjectEntry;
+  headingLevel?: 2 | 3;
+  /** `feature`: figure beside text. `compact`: smaller figure, text-first. */
+  variant?: 'feature' | 'compact';
+}
+
+const { project, headingLevel = 3, variant = 'feature' } = Astro.props;
+const Heading = headingLevel === 2 ? 'h2' : 'h3';
+const detailHref = project.detail ? `/projects/${project.slug}/` : undefined;
+const headingId = `project-${project.slug}`;
+---
+
+<article class:list={['project-card', `is-${variant}`]} aria-labelledby={headingId} data-reveal>
+  <a class="figure" href={detailHref ?? project.repo} tabindex="-1" aria-hidden="true">
+    <Figure kind={project.figure} />
+  </a>
+  <div class="text">
+    <p class="label meta">{project.domain} · {project.year}</p>
+    <Heading id={headingId} class="title">
+      {detailHref ? <a href={detailHref}>{project.title}</a> : project.title}
+    </Heading>
+    <p class="problem">{project.problem}</p>
+    <p class="description">{project.description}</p>
+    <p class="highlight"><span class="label">Detail</span>{project.highlight}</p>
+    {project.note && <p class="note">{project.note}</p>}
+    <TechTag tags={project.tags} label={`${project.title} technologies`} />
+    <ul class="links" role="list">
+      {
+        detailHref && (
+          <li>
+            <a class="arrow-link" href={detailHref} aria-label={`${project.title}: design notes`}>
+              Design notes
+            </a>
+          </li>
+        )
+      }
+      <li>
+        <a class="arrow-link" href={project.repo} data-external rel="noopener" aria-label={`${project.title}: source code on GitHub`}>
+          Code
+        </a>
+      </li>
+      {
+        project.demo && (
+          <li>
+            <a class="arrow-link" href={project.demo} data-external rel="noopener" aria-label={`${project.title}: live demo`}>
+              Demo
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5) var(--space-7);
+    padding-block: var(--space-7);
+    border-top: var(--border);
+  }
+
+  .project-card:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  @media (min-width: 52rem) {
+    .is-feature {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+    }
+
+    .is-compact {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+      align-items: start;
+    }
+  }
+
+  .figure {
+    display: block;
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    overflow: hidden;
+    transition:
+      border-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+  }
+
+  .project-card:hover .figure {
+    border-color: var(--color-rule-strong);
+    box-shadow: var(--shadow-raised);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 51.99rem) {
+    .figure {
+      max-width: 30rem;
+    }
+
+    .is-compact .figure {
+      max-width: 18rem;
+    }
+  }
+
+  .text {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    max-width: var(--measure-wide);
+  }
+
+  .meta {
+    color: var(--color-ink-3);
+  }
+
+  .title {
+    font-size: var(--text-xl);
+  }
+
+  .title a {
+    text-decoration: none;
+  }
+
+  .title a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .problem {
+    font-size: var(--text-md);
+    line-height: 1.5;
+    color: var(--color-ink);
+  }
+
+  .description {
+    color: var(--color-ink-2);
+  }
+
+  .highlight {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    padding: var(--space-3) var(--space-4);
+    border-left: 2px solid var(--color-accent);
+    background: var(--color-surface);
+  }
+
+  .highlight .label {
+    display: block;
+    margin-bottom: var(--space-1);
+  }
+
+  .note {
+    font-size: var(--text-xs);
+    color: var(--color-ink-3);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+  }
+</style>

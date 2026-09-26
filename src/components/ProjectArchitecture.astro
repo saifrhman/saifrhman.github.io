@@ -1,0 +1,125 @@
+---
+import type { ArchitectureStage } from '@/data/types';
+
+interface Props {
+  stages: ArchitectureStage[];
+  title: string;
+}
+
+const { stages, title } = Astro.props;
+---
+
+<figure class="architecture">
+  <ol class="stages" role="list" aria-label={title}>
+    {
+      stages.map((stage, i) => (
+        <li class="stage">
+          <p class="label stage-label">
+            <span class="step" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            {stage.label}
+          </p>
+          <ul class="nodes" role="list">
+            {stage.nodes.map((node) => (
+              <li class="node">
+                <span class="node-title">{node.title}</span>
+                {node.detail && <span class="node-detail">{node.detail}</span>}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ol>
+  <figcaption class="visually-hidden">{title}</figcaption>
+</figure>
+
+<style>
+  .architecture {
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    padding: var(--space-5);
+    overflow: hidden;
+  }
+
+  .stages {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 56rem) {
+    .stages {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .stage {
+    position: relative;
+  }
+
+  /* Connector: downward on narrow screens, rightward on wide screens. */
+  .stage:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 1.1rem;
+    bottom: calc(-1 * var(--space-5));
+    height: var(--space-5);
+    border-left: 1px dashed var(--color-rule-strong);
+  }
+
+  @media (min-width: 56rem) {
+    .stage:not(:last-child)::after {
+      left: auto;
+      right: calc(-1 * var(--space-6));
+      top: 2.9rem;
+      bottom: auto;
+      width: var(--space-6);
+      height: 0;
+      border-left: 0;
+      border-top: 1px dashed var(--color-rule-strong);
+    }
+  }
+
+  .stage-label {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    color: var(--color-ink-2);
+  }
+
+  .step {
+    color: var(--color-accent);
+  }
+
+  .nodes {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .node {
+    display: grid;
+    gap: 0.15rem;
+    padding: var(--space-3);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+  }
+
+  .node-title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .node-detail {
+    font-size: var(--text-xs);
+    color: var(--color-ink-3);
+    line-height: 1.45;
+  }
+</style>

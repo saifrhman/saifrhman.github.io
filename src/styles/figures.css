@@ -1,0 +1,119 @@
+/*
+  Shared vocabulary for build-time SVG figures. Figures draw with these
+  classes only, so they follow the theme and read as one family.
+*/
+
+.fig {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--color-figure-ink);
+}
+
+.fig text {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+  fill: var(--color-ink-2);
+}
+
+.fig .t-strong {
+  fill: var(--color-ink);
+  font-weight: 500;
+}
+
+.fig .t-muted {
+  fill: var(--color-ink-3);
+}
+
+.fig .t-accent {
+  fill: var(--color-accent);
+}
+
+.fig .t-small {
+  font-size: 8px;
+}
+
+.fig .t-serif {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.fig .s-ink {
+  stroke: var(--color-figure-ink);
+  fill: none;
+}
+
+.fig .s-muted {
+  stroke: var(--color-figure-muted);
+  fill: none;
+}
+
+.fig .s-rule {
+  stroke: var(--color-rule-strong);
+  fill: none;
+}
+
+.fig .s-accent {
+  stroke: var(--color-accent);
+  fill: none;
+}
+
+.fig .f-ink {
+  fill: var(--color-figure-ink);
+}
+
+.fig .f-muted {
+  fill: var(--color-figure-muted);
+}
+
+.fig .f-accent {
+  fill: var(--color-accent);
+}
+
+.fig .f-surface {
+  fill: var(--color-surface);
+}
+
+.fig .f-bg {
+  fill: var(--color-bg);
+}
+
+.fig .f-soft {
+  fill: var(--color-surface-2);
+}
+
+.fig .f-accent-soft {
+  fill: var(--color-accent-soft);
+}
+
+.fig .dashed {
+  stroke-dasharray: 3 3;
+}
+
+.fig .dotted {
+  stroke-dasharray: 1 2.5;
+  stroke-linecap: round;
+}
+
+.fig .hair {
+  stroke-width: 0.75;
+}
+
+.fig .thin {
+  stroke-width: 1;
+}
+
+.fig .medium {
+  stroke-width: 1.5;
+}
+
+.fig .thick {
+  stroke-width: 2.25;
+}
+
+.fig .round {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

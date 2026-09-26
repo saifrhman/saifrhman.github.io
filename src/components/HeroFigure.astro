@@ -1,0 +1,291 @@
+---
+/**
+ * Hero figure. Renders the three structures as static SVG at build time so the
+ * figure is complete without JavaScript, then (on wide screens, without
+ * reduced motion or data saver) lazily upgrades to a three.js scene that
+ * morphs between them. See src/scripts/hero-scene.ts.
+ */
+import {
+  getStructures,
+  project,
+  pixelsPerUnit,
+  POINT_COUNT,
+  SIGMA_ACCENT,
+  STRUCTURE_IDS,
+  type StructureId,
+} from '@/lib/structures';
+
+const W = 560;
+const H = 520;
+const structures = getStructures();
+
+const captions: Record<StructureId, { label: string; text: string }> = {
+  backbone: {
+    label: 'Backbone',
+    text: 'A protein C-alpha trace. Spread is widest in loops and termini, where per-residue confidence tends to be lowest.',
+  },
+  scene: {
+    label: 'Scene',
+    text: 'A small scene seen by four cameras. Spread grows on surfaces the cameras barely observe.',
+  },
+  agents: {
+    label: 'Agents',
+    text: 'Six agent trajectories in space-time, with time running upward. Spread grows with the prediction horizon.',
+  },
+};
+
+const r1 = (n: number) => Math.round(n * 10) / 10;
+
+interface Layer {
+  d: string;
+  width: number;
+  className: string;
+}
+
+function render(id: StructureId) {
+  const s = structures[id];
+  const projected = Array.from({ length: POINT_COUNT }, (_, i) => {
+    const p = project([s.points[i * 3]!, s.points[i * 3 + 1]!, s.points[i * 3 + 2]!], W, H);
+    return { ...p, sigma: s.sigma[i]! };
+  });
+
+  // Segments as one path.
+  let lines = '';
+  for (let k = 0; k < s.segments.length; k += 6) {
+    const a = project([s.segments[k]!, s.segments[k + 1]!, s.segments[k + 2]!], W, H);
+    const b = project([s.segments[k + 3]!, s.segments[k + 4]!, s.segments[k + 5]!], W, H);
+    lines += `M${r1(a.x)} ${r1(a.y)}L${r1(b.x)} ${r1(b.y)}`;
+  }
+
+  // Points are drawn as zero-length round-capped strokes, bucketed by size so
+  // each structure needs only a handful of path elements.
+  const halos = new Map<string, Layer>();
+  const cores = new Map<string, Layer>();
+  const depths = projected.map((p) => p.depth).sort((a, b) => a - b);
+  const midDepth = depths[Math.floor(depths.length / 2)]!;
+  for (const p of projected) {
+    const accent = p.sigma > SIGMA_ACCENT;
+    const tone = accent ? 'accent' : 'ink';
+    if (accent) {
+      // Two soft rings per uncertain point approximate the WebGL falloff.
+      const haloR = Math.max(3, p.sigma * pixelsPerUnit(p.depth, H) * 1.5);
+      for (const [ring, factor] of [
+        ['outer', 1],
+        ['inner', 0.55],
+      ] as const) {
+        const w = Math.round(haloR * factor) * 2; // diameter in 2px steps, so points share a few paths
+        const key = `${ring}-${w}`;
+        const halo = halos.get(key) ?? { d: '', width: w, className: `halo ${ring}` };
+        halo.d += `M${r1(p.x)} ${r1(p.y)}h0`;
+        halos.set(key, halo);
+      }
+    }
+
+    const far = p.depth > midDepth;
+    const cKey = `${tone}-${far ? 'far' : 'near'}`;
+    const core = cores.get(cKey) ?? { d: '', width: accent ? 3.6 : 3, className: `core ${tone} ${far ? 'far' : 'near'}` };
+    core.d += `M${r1(p.x)} ${r1(p.y)}h0`;
+    cores.set(cKey, core);
+  }
+  return { lines, halos: [...halos.values()], cores: [...cores.values()] };
+}
+
+const rendered = STRUCTURE_IDS.map((id) => ({ id, ...render(id) }));
+const initial: StructureId = 'backbone';
+---
+
+<figure class="hero-figure" data-hero-figure data-active={initial}>
+  <div class="stage">
+    <svg class="static" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="hero-figure-caption">
+      {
+        rendered.map((r) => (
+          <g class="structure" data-structure={r.id}>
+            <path class="lines" d={r.lines} />
+            {r.halos.map((l) => (
+              <path class={l.className} d={l.d} stroke-width={l.width} />
+            ))}
+            {r.cores.map((l) => (
+              <path class={l.className} d={l.d} stroke-width={l.width} />
+            ))}
+          </g>
+        ))
+      }
+    </svg>
+  </div>
+  <figcaption id="hero-figure-caption">
+    <div class="switcher" role="group" aria-label="Structure shown in the figure">
+      {
+        STRUCTURE_IDS.map((id) => (
+          <button type="button" data-structure-button={id} aria-pressed={id === initial ? 'true' : 'false'}>
+            {captions[id].label}
+          </button>
+        ))
+      }
+    </div>
+    <p class="caption">
+      <span class="fig">Fig. 1</span>
+      {
+        STRUCTURE_IDS.map((id) => (
+          <span class="caption-text" data-caption={id} hidden={id !== initial}>
+            {captions[id].text}
+          </span>
+        ))
+      }
+      <span class="caption-note">Illustrative; accent marks the least certain points.</span>
+    </p>
+  </figcaption>
+</figure>
+
+<script>
+  import { initHeroFigure } from '@/scripts/hero-figure';
+
+  const root = document.querySelector<HTMLElement>('[data-hero-figure]');
+  if (root) initHeroFigure(root);
+</script>
+
+<style>
+  .hero-figure {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: 560 / 520;
+    width: 100%;
+  }
+
+  .static,
+  .stage :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .stage :global(canvas) {
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+
+  .hero-figure:global(.is-webgl) .stage :global(canvas) {
+    opacity: 1;
+  }
+
+  .hero-figure:global(.is-webgl) .static {
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+
+  .structure {
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-in-out);
+  }
+
+  [data-active='backbone'] [data-structure='backbone'],
+  [data-active='scene'] [data-structure='scene'],
+  [data-active='agents'] [data-structure='agents'] {
+    opacity: 1;
+  }
+
+  .lines {
+    fill: none;
+    stroke: var(--color-figure-ink);
+    stroke-opacity: 0.32;
+    stroke-width: 0.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .halo,
+  .core {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .ink {
+    stroke: var(--color-figure-ink);
+  }
+
+  .accent {
+    stroke: var(--color-accent);
+  }
+
+  .halo {
+    stroke: var(--color-accent);
+  }
+
+  .halo.outer {
+    stroke-opacity: 0.07;
+  }
+
+  .halo.inner {
+    stroke-opacity: 0.09;
+  }
+
+  .core.far {
+    stroke-opacity: 0.55;
+  }
+
+  .core.near {
+    stroke-opacity: 0.95;
+  }
+
+  figcaption {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .switcher button {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-ink-3);
+    transition:
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .switcher button:hover {
+    color: var(--color-ink);
+  }
+
+  .switcher button[aria-pressed='true'] {
+    color: var(--color-ink);
+    border-color: var(--color-rule-strong);
+  }
+
+  .caption {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-ink-2);
+    min-height: 4.5em;
+  }
+
+  .fig {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink);
+    margin-right: 0.5em;
+  }
+
+  .caption-note {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--color-ink-3);
+  }
+</style>

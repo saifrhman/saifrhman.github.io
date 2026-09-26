@@ -1,0 +1,33 @@
+---
+import type { FigureKind } from '@/data/types';
+import GeometryFigure from './GeometryFigure.astro';
+import WireheadingFigure from './WireheadingFigure.astro';
+import FunnelFigure from './FunnelFigure.astro';
+import MangroveFigure from './MangroveFigure.astro';
+import RetrievalFigure from './RetrievalFigure.astro';
+import TacticalFigure from './TacticalFigure.astro';
+import LakehouseFigure from './LakehouseFigure.astro';
+import ReceiptFigure from './ReceiptFigure.astro';
+import BayesOptFigure from './BayesOptFigure.astro';
+
+interface Props {
+  kind: FigureKind;
+}
+
+const components = {
+  geometry: GeometryFigure,
+  wireheading: WireheadingFigure,
+  backbone: FunnelFigure,
+  mangrove: MangroveFigure,
+  retrieval: RetrievalFigure,
+  tactical: TacticalFigure,
+  lakehouse: LakehouseFigure,
+  receipt: ReceiptFigure,
+  bayesopt: BayesOptFigure,
+} satisfies Record<FigureKind, unknown>;
+
+const { kind } = Astro.props;
+const Component = components[kind];
+---
+
+<Component />

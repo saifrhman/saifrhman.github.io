@@ -1,0 +1,397 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TechTag from '@/components/TechTag.astro';
+import ProjectArchitecture from '@/components/ProjectArchitecture.astro';
+import EvidenceImage from '@/components/EvidenceImage.astro';
+import Figure from '@/components/figures/Figure.astro';
+import { projects } from '@/data/projects';
+import type { ProjectDetail, ProjectEntry } from '@/data/types';
+
+export const getStaticPaths = (() => {
+  const withDetail = projects.filter((p): p is ProjectEntry & { detail: ProjectDetail } => p.detail !== undefined);
+  return withDetail.map((project, i) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      next: withDetail[(i + 1) % withDetail.length]!,
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: ProjectEntry & { detail: ProjectDetail };
+  next: ProjectEntry;
+}
+
+const { project, next } = Astro.props;
+const { detail } = project;
+
+const sections = [
+  { id: 'problem', label: 'Problem' },
+  { id: 'system', label: 'System' },
+  { id: 'architecture', label: 'Architecture' },
+  { id: 'decisions', label: 'Technical decisions' },
+  { id: 'evaluation', label: 'Evaluation' },
+  { id: 'limitations', label: 'Limitations' },
+];
+---
+
+<BaseLayout title={project.title} description={`${project.problem} ${project.highlight.split('. ')[0]}.`} type="article">
+  <article class="container page">
+    <header class="head">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol role="list">
+          <li><a href="/projects/">Projects</a></li>
+          <li aria-current="page">{project.title}</li>
+        </ol>
+      </nav>
+      <div class="head-grid">
+        <div class="head-text">
+          <p class="label">{project.domain} · {project.year}</p>
+          <h1>{project.title}</h1>
+          <p class="lead">{project.problem}</p>
+          <p class="description">{project.description}</p>
+          {project.note && <p class="note">{project.note}</p>}
+          <TechTag tags={project.tags} label={`${project.title} technologies`} />
+          <ul class="links" role="list">
+            <li>
+              <a class="arrow-link" href={project.repo} data-external rel="noopener">Source on GitHub</a>
+            </li>
+            {
+              project.demo && (
+                <li>
+                  <a class="arrow-link" href={project.demo} data-external rel="noopener">
+                    Live demo
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+        </div>
+        <div class="head-figure">
+          <Figure kind={project.figure} />
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <nav class="on-page" aria-label="On this page">
+        <p class="label">On this page</p>
+        <ol role="list">
+          {
+            sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`}>{s.label}</a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <div class="content">
+        <section id="problem" aria-labelledby="problem-h">
+          <h2 id="problem-h">Problem</h2>
+          <div class="prose">{detail.problem.map((p) => <p>{p}</p>)}</div>
+        </section>
+
+        <section id="system" aria-labelledby="system-h">
+          <h2 id="system-h">System</h2>
+          <div class="prose">{detail.system.map((p) => <p>{p}</p>)}</div>
+        </section>
+
+        <section id="architecture" aria-labelledby="architecture-h">
+          <h2 id="architecture-h">Architecture</h2>
+          <ProjectArchitecture stages={detail.architecture} title={`${project.title} architecture, in pipeline order`} />
+        </section>
+
+        <section id="decisions" aria-labelledby="decisions-h">
+          <h2 id="decisions-h">Technical decisions</h2>
+          <div class="decisions">
+            {
+              detail.decisions.map((d, i) => (
+                <div class="decision">
+                  <p class="label decision-index">{String(i + 1).padStart(2, '0')}</p>
+                  <h3>{d.title}</h3>
+                  <p>{d.body}</p>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <section id="evaluation" aria-labelledby="evaluation-h">
+          <h2 id="evaluation-h">Evaluation</h2>
+          <div class="prose">{detail.evaluation.map((p) => <p>{p}</p>)}</div>
+          {
+            project.images && project.images.length > 0 && (
+              <div class="images">
+                {project.images.map((image) => (
+                  <EvidenceImage image={image} />
+                ))}
+              </div>
+            )
+          }
+        </section>
+
+        <section id="limitations" aria-labelledby="limitations-h">
+          <h2 id="limitations-h">Limitations and failure modes</h2>
+          <ul class="limitations">
+            {detail.limitations.map((l) => <li>{l}</li>)}
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <footer class="next">
+      <a class="arrow-link" href="/projects/">All projects</a>
+      {
+        next.slug !== project.slug && (
+          <a class="next-link" href={`/projects/${next.slug}/`}>
+            <span class="label">Next design notes</span>
+            <span class="next-title">{next.title}</span>
+          </a>
+        )
+      }
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-top: var(--space-6);
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    margin-bottom: var(--space-7);
+  }
+
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: var(--space-2);
+    color: var(--color-rule-strong);
+  }
+
+  .crumbs a {
+    color: var(--color-ink-2);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .head {
+    padding-bottom: var(--space-7);
+    border-bottom: var(--border);
+  }
+
+  .head-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  @media (min-width: 60rem) {
+    .head-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+  }
+
+  .head-text {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    font-weight: 400;
+  }
+
+  .lead {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    line-height: 1.4;
+    max-width: var(--measure-wide);
+  }
+
+  .description {
+    color: var(--color-ink-2);
+    max-width: var(--measure-wide);
+  }
+
+  .note {
+    font-size: var(--text-sm);
+    color: var(--color-ink-3);
+    max-width: var(--measure-wide);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    font-size: var(--text-sm);
+  }
+
+  .head-figure {
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    overflow: hidden;
+    width: 100%;
+    max-width: 30rem;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-top: var(--space-8);
+  }
+
+  @media (min-width: 64rem) {
+    .body {
+      grid-template-columns: 12rem minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+
+    .on-page {
+      position: sticky;
+      top: var(--space-6);
+      align-self: start;
+    }
+  }
+
+  .on-page ol {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 63.99rem) {
+    .on-page ol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-4);
+    }
+  }
+
+  .on-page a {
+    color: var(--color-ink-2);
+    text-decoration: none;
+  }
+
+  .on-page a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+
+  .content {
+    display: grid;
+    gap: var(--space-8);
+    min-width: 0;
+  }
+
+  .content h2 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .prose p {
+    color: var(--color-ink-2);
+  }
+
+  .decisions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 48rem) {
+    .decisions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .decision {
+    padding: var(--space-5);
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .decision-index {
+    color: var(--color-accent);
+    margin-bottom: var(--space-2);
+  }
+
+  .decision h3 {
+    font-size: var(--text-md);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0;
+    margin-bottom: var(--space-2);
+  }
+
+  .decision p:not(.label) {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .images {
+    margin-top: var(--space-6);
+    max-width: var(--measure-wide);
+  }
+
+  .limitations {
+    display: grid;
+    gap: var(--space-3);
+    padding-left: 1.1em;
+    color: var(--color-ink-2);
+    max-width: var(--measure-wide);
+  }
+
+  .limitations li::marker {
+    color: var(--color-accent);
+  }
+
+  .next {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: var(--space-5);
+    margin-top: var(--space-9);
+    padding-top: var(--space-6);
+    border-top: var(--border);
+  }
+
+  .next-link {
+    display: grid;
+    gap: var(--space-1);
+    text-align: right;
+    text-decoration: none;
+  }
+
+  .next-title {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+  }
+
+  .next-link:hover .next-title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+</style>

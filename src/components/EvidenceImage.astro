@@ -1,0 +1,61 @@
+---
+/**
+ * A real artefact from a repository (plot, screenshot, diagram), optimised at
+ * build time. Images live in src/assets and are referenced by relative path.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { ImageRef } from '@/data/types';
+
+interface Props {
+  image: ImageRef;
+  /** Sizes attribute for responsive widths. */
+  sizes?: string;
+  priority?: boolean;
+}
+
+const { image, sizes = '(min-width: 60rem) 48rem, 100vw', priority = false } = Astro.props;
+
+const assets = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.{png,jpg,jpeg,webp,avif}');
+const loader = assets[`/src/assets/${image.src}`];
+if (!loader) throw new Error(`Image not found in src/assets: ${image.src}`);
+const src = (await loader()).default;
+---
+
+<figure class="evidence-image">
+  <div class="frame">
+    <Image
+      src={src}
+      alt={image.alt}
+      widths={[480, 800, 1200, Math.min(src.width, 1600)]}
+      sizes={sizes}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding="async"
+      format="webp"
+      quality={82}
+    />
+  </div>
+  {image.caption && <figcaption>{image.caption}</figcaption>}
+</figure>
+
+<style>
+  .frame {
+    border: var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--color-ink-3);
+    max-width: var(--measure);
+  }
+</style>

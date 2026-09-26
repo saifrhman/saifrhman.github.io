@@ -1,0 +1,108 @@
+---
+/**
+ * Reward routing in the two matched conditions of the peer-reward study.
+ * Coupled: each agent's reward is the grade its peer assigns.
+ * Decoupled: peers still grade each other, but reward is the task metric.
+ */
+const W = 400;
+const H = 300;
+
+const panels = [
+  { x: 14, title: 'reward-coupled', coupled: true },
+  { x: 206, title: 'reward-decoupled', coupled: false },
+];
+const pw = 180;
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label="Diagram of the two matched training conditions. In both, agent A and agent B each solve a task and grade the other's answer. In the reward-coupled condition, each agent's reward is the grade from its peer. In the reward-decoupled condition, grades are still exchanged, but each agent's reward is the external task metric."
+>
+  <defs>
+    <marker id="wh-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L8 4 L0 8 z" class="f-ink"></path>
+    </marker>
+    <marker id="wh-arrow-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L8 4 L0 8 z" class="f-accent"></path>
+    </marker>
+  </defs>
+
+  {
+    panels.map((p) => {
+      const ax = p.x + 40;
+      const bx = p.x + pw - 40;
+      const ay = 150;
+      return (
+        <g>
+          <text class="t-strong" x={p.x + pw / 2} y="26" text-anchor="middle">
+            {p.title}
+          </text>
+          <rect class="f-surface s-rule thin" x={p.x} y="38" width={pw} height="232" rx="6" />
+
+          {/* tasks */}
+          <rect class="f-soft" x={ax - 22} y="54" width="44" height="18" rx="3" />
+          <text class="t-small" x={ax} y="66" text-anchor="middle">
+            task A
+          </text>
+          <rect class="f-soft" x={bx - 22} y="54" width="44" height="18" rx="3" />
+          <text class="t-small" x={bx} y="66" text-anchor="middle">
+            task B
+          </text>
+          <line class="s-muted thin" x1={ax} x2={ax} y1="72" y2={ay - 20} marker-end="url(#wh-arrow)" />
+          <line class="s-muted thin" x1={bx} x2={bx} y1="72" y2={ay - 20} marker-end="url(#wh-arrow)" />
+
+          {/* agents */}
+          <circle class="f-bg s-ink medium" cx={ax} cy={ay} r="18" />
+          <text class="t-strong" x={ax} y={ay + 4} text-anchor="middle">
+            A
+          </text>
+          <circle class="f-bg s-ink medium" cx={bx} cy={ay} r="18" />
+          <text class="t-strong" x={bx} y={ay + 4} text-anchor="middle">
+            B
+          </text>
+
+          {/* peer grading: answers cross over */}
+          <path class="s-ink thin" d={`M${ax + 18} ${ay - 8} C ${ax + 50} ${ay - 34}, ${bx - 50} ${ay - 34}, ${bx - 20} ${ay - 10}`} marker-end="url(#wh-arrow)" />
+          <path class="s-ink thin" d={`M${bx - 18} ${ay + 8} C ${bx - 50} ${ay + 34}, ${ax + 50} ${ay + 34}, ${ax + 20} ${ay + 10}`} marker-end="url(#wh-arrow)" />
+          <text class="t-muted t-small" x={p.x + pw / 2} y={ay - 30} text-anchor="middle">
+            answer → grade
+          </text>
+
+          {/* reward source */}
+          {p.coupled ? (
+            <g>
+              <path class="s-accent medium" d={`M${ax} ${ay + 18} V ${ay + 72}`} marker-end="url(#wh-arrow-accent)" />
+              <path class="s-accent medium" d={`M${bx} ${ay + 18} V ${ay + 72}`} marker-end="url(#wh-arrow-accent)" />
+              <text class="t-accent t-small" x={ax} y={ay + 90} text-anchor="middle">
+                r = B's grade
+              </text>
+              <text class="t-accent t-small" x={bx} y={ay + 90} text-anchor="middle">
+                r = A's grade
+              </text>
+            </g>
+          ) : (
+            <g>
+              <rect class="f-soft" x={p.x + pw / 2 - 34} y={ay + 44} width="68" height="18" rx="3" />
+              <text class="t-small" x={p.x + pw / 2} y={ay + 56} text-anchor="middle">
+                task metric
+              </text>
+              <path class="s-ink medium" d={`M${p.x + pw / 2 - 34} ${ay + 53} H ${ax + 4} V ${ay + 22}`} marker-end="url(#wh-arrow)" />
+              <path class="s-ink medium" d={`M${p.x + pw / 2 + 34} ${ay + 53} H ${bx - 4} V ${ay + 22}`} marker-end="url(#wh-arrow)" />
+              <text class="t-small" x={ax} y={ay + 90} text-anchor="middle">
+                r = metric
+              </text>
+              <text class="t-small" x={bx} y={ay + 90} text-anchor="middle">
+                r = metric
+              </text>
+            </g>
+          )}
+          <text class="t-muted t-small" x={p.x + pw / 2} y="258" text-anchor="middle">
+            {p.coupled ? 'grades are the training signal' : 'grades exchanged, not rewarded'}
+          </text>
+        </g>
+      );
+    })
+  }
+</svg>

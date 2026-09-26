@@ -1,0 +1,55 @@
+---
+import { site } from '@/data/site';
+
+interface Props {
+  /** Page title without the site suffix. Omit on the home page. */
+  title?: string | undefined;
+  description?: string | undefined;
+  /** Absolute or root-relative path to a 1200×630 image. */
+  image?: string | undefined;
+  type?: 'website' | 'article' | 'profile';
+  noindex?: boolean;
+  /** Extra JSON-LD objects for this page. */
+  jsonLd?: Record<string, unknown>[];
+}
+
+const { title, description = site.description, image = site.ogImage, type = 'website', noindex = false, jsonLd = [] } = Astro.props;
+
+const fullTitle = title ? `${title} · ${site.name}` : site.title;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const imageUrl = new URL(image, Astro.site ?? site.url).href;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex" />}
+<meta name="author" content={site.name} />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.locale} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={site.ogImageAlt} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={site.ogImageAlt} />
+
+<meta name="theme-color" content="#f4f2ec" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0e0f11" media="(prefers-color-scheme: dark)" />
+<meta name="color-scheme" content="light dark" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+{jsonLd.map((data) => <script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />)}

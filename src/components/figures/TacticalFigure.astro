@@ -1,0 +1,96 @@
+---
+/**
+ * Illustration of structural retrieval: a query moment (22 players and the
+ * ball on a canonical 105 × 68 m pitch) and three retrieved moments, each with
+ * an analyst judgement. Positions are synthetic.
+ */
+import { mulberry32, gaussian, r1 } from '@/lib/random';
+
+const W = 400;
+const H = 300;
+
+// Canonical pitch coordinates (metres, origin at centre).
+const home: [number, number][] = [
+  [-48, 0],
+  [-30, -22], [-33, -8], [-33, 8], [-30, 22],
+  [-14, -18], [-18, 0], [-14, 18],
+  [4, -24], [8, 2], [4, 24],
+];
+const away: [number, number][] = [
+  [49, 0],
+  [30, -24], [26, -9], [26, 9], [30, 24],
+  [14, -14], [10, 6], [16, 20],
+  [-2, -12], [-4, 10], [2, 30],
+];
+const ball: [number, number] = [6, 4];
+
+function variant(seed: number, spread: number, flipY: boolean) {
+  const rand = mulberry32(seed);
+  const move = ([x, y]: [number, number]): [number, number] => [
+    x + gaussian(rand) * spread,
+    (flipY ? -y : y) + gaussian(rand) * spread,
+  ];
+  return { home: home.map(move), away: away.map(move), ball: move(ball) };
+}
+
+const query = { home, away, ball };
+const results = [
+  { ...variant(3, 2.2, true), mark: '✓', label: 'relevant', tone: 't-strong' },
+  { ...variant(8, 4.5, false), mark: '~', label: 'partly', tone: '' },
+  { ...variant(15, 11, false), mark: '✗', label: 'not relevant', tone: 't-muted' },
+];
+
+function pitch(x0: number, y0: number, w: number) {
+  const h = (w * 68) / 105;
+  const sx = (mx: number) => r1(x0 + ((mx + 52.5) / 105) * w);
+  const sy = (my: number) => r1(y0 + ((my + 34) / 68) * h);
+  return { h, sx, sy };
+}
+
+const big = pitch(24, 40, 236);
+const smallW = 104;
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label="Illustration: a query moment showing 22 players and the ball on a pitch, and three retrieved moments with similar or dissimilar player configurations, each marked with an analyst judgement: relevant, partly relevant, not relevant."
+>
+  <text class="t-muted" x="24" y="28">query moment</text>
+  <rect class="f-surface s-rule thin" x="24" y="40" width="236" height={big.h}></rect>
+  <line class="s-rule hair" x1={big.sx(0)} x2={big.sx(0)} y1="40" y2={40 + big.h}></line>
+  <circle class="s-rule hair" cx={big.sx(0)} cy={big.sy(0)} r={(9.15 / 105) * 236}></circle>
+  <rect class="s-rule hair" x={big.sx(-52.5)} y={big.sy(-20.15)} width={(16.5 / 105) * 236} height={(40.3 / 68) * big.h}></rect>
+  <rect class="s-rule hair" x={big.sx(36)} y={big.sy(-20.15)} width={(16.5 / 105) * 236} height={(40.3 / 68) * big.h}></rect>
+  {query.home.map(([x, y]) => <circle class="f-ink" cx={big.sx(x)} cy={big.sy(y)} r="3.4" />)}
+  {query.away.map(([x, y]) => <circle class="f-bg s-ink medium" cx={big.sx(x)} cy={big.sy(y)} r="3" />)}
+  <circle class="f-accent" cx={big.sx(query.ball[0])} cy={big.sy(query.ball[1])} r="2.6"></circle>
+
+  <text class="t-muted" x="276" y="28">nearest moments</text>
+  {
+    results.map((r, i) => {
+      const x0 = 276;
+      const y0 = 40 + i * 82;
+      const p = pitch(x0, y0, smallW);
+      return (
+        <g>
+          <rect class="f-surface s-rule thin" x={x0} y={y0} width={smallW} height={p.h} />
+          <line class="s-rule hair" x1={p.sx(0)} x2={p.sx(0)} y1={y0} y2={y0 + p.h} />
+          {r.home.map(([x, y]) => (
+            <circle class="f-ink" cx={p.sx(x)} cy={p.sy(y)} r="1.7" />
+          ))}
+          {r.away.map(([x, y]) => (
+            <circle class="f-bg s-ink thin" cx={p.sx(x)} cy={p.sy(y)} r="1.5" />
+          ))}
+          <circle class="f-accent" cx={p.sx(r.ball[0])} cy={p.sy(r.ball[1])} r="1.5" />
+          <text class={r.tone} x={x0} y={y0 + p.h + 12}>
+            {r.mark} {r.label}
+          </text>
+        </g>
+      );
+    })
+  }
+  <path class="s-muted thin dashed" d="M264 110 H 272"></path>
+  <text class="t-muted t-small" x="24" y={40 + big.h + 20}>analyst judgements re-rank the next results</text>
+</svg>

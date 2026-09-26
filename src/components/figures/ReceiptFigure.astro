@@ -1,0 +1,69 @@
+---
+/**
+ * Schematic of source-weighted weak labels on a receipt: tokens aligned to the
+ * four SROIE annotations carry weight 1.0, rule-derived pseudo-labels carry
+ * 0.76–0.86 depending on entity type, and the two extractors are fused per field.
+ */
+const W = 400;
+const H = 300;
+
+type Kind = 'gold' | 'pseudo' | 'none';
+const rows: { y: number; tokens: { w: number; kind: Kind; conf?: number }[] }[] = [
+  { y: 44, tokens: [{ w: 70, kind: 'gold' }, { w: 44, kind: 'gold' }] },
+  { y: 60, tokens: [{ w: 96, kind: 'gold' }] },
+  { y: 84, tokens: [{ w: 30, kind: 'none' }, { w: 48, kind: 'gold' }] },
+  { y: 100, tokens: [{ w: 34, kind: 'none' }, { w: 40, kind: 'pseudo', conf: 0.8 }] },
+  { y: 124, tokens: [{ w: 62, kind: 'pseudo', conf: 0.76 }, { w: 26, kind: 'pseudo', conf: 0.84 }] },
+  { y: 140, tokens: [{ w: 54, kind: 'pseudo', conf: 0.76 }, { w: 26, kind: 'pseudo', conf: 0.84 }] },
+  { y: 156, tokens: [{ w: 72, kind: 'pseudo', conf: 0.76 }, { w: 26, kind: 'pseudo', conf: 0.84 }] },
+  { y: 180, tokens: [{ w: 40, kind: 'pseudo', conf: 0.78 }, { w: 30, kind: 'pseudo', conf: 0.78 }] },
+  { y: 196, tokens: [{ w: 36, kind: 'none' }, { w: 30, kind: 'gold' }] },
+  { y: 220, tokens: [{ w: 58, kind: 'pseudo', conf: 0.86 }, { w: 22, kind: 'none' }] },
+];
+
+const laid = rows.map((row) => {
+  let x = 44;
+  return row.tokens.map((t) => {
+    const out = { ...t, x, y: row.y };
+    x += t.w + 6;
+    return out;
+  });
+});
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label="Schematic: a receipt whose OCR tokens are labelled from two sources. Tokens aligned to the four SROIE annotations carry weight 1.0; tokens labelled by the rule parser carry 0.76 to 0.86. The weight scales each token's training loss, and at inference the rule and model outputs are merged field by field."
+>
+  <path class="f-surface s-ink thin" d="M32 24 H 188 V 262 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 l -9.75 -7 l -9.75 7 Z"
+  ></path>
+  {
+    laid.flat().map((t) => {
+      if (t.kind === 'none') return <rect class="f-soft" x={t.x} y={t.y - 7} width={t.w} height="9" rx="1.5" />;
+      if (t.kind === 'gold') return <rect class="f-ink" x={t.x} y={t.y - 7} width={t.w} height="9" rx="1.5" />;
+      return <rect class="f-accent" x={t.x} y={t.y - 7} width={t.w} height="9" rx="1.5" opacity={t.conf ?? 0.8} />;
+    })
+  }
+
+  <g transform="translate(212 40)">
+    <text class="t-strong" x="0" y="0">label source → weight</text>
+    <rect class="f-ink" x="0" y="14" width="18" height="9" rx="1.5"></rect>
+    <text x="26" y="22">SROIE-aligned · 1.0</text>
+    <rect class="f-accent" x="0" y="34" width="18" height="9" rx="1.5" opacity="0.8"></rect>
+    <text x="26" y="42">rule parser · 0.76–0.86</text>
+    <rect class="f-soft" x="0" y="54" width="18" height="9" rx="1.5"></rect>
+    <text x="26" y="62">outside any field</text>
+
+    <line class="s-rule hair" x1="0" x2="172" y1="84" y2="84"></line>
+    <text class="t-strong" x="0" y="104">training</text>
+    <text x="0" y="122">token loss × source weight</text>
+
+    <line class="s-rule hair" x1="0" x2="172" y1="140" y2="140"></line>
+    <text class="t-strong" x="0" y="160">inference fusion</text>
+    <text x="0" y="178">per-field preference</text>
+    <text x="0" y="192">or takeover margin</text>
+    <text x="0" y="210">total ≈ Σ items check</text>
+  </g>
+</svg>

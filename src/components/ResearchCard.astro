@@ -1,0 +1,254 @@
+---
+import type { ResearchEntry } from '@/data/types';
+import StatusBadge from '@/components/StatusBadge.astro';
+import Figure from '@/components/figures/Figure.astro';
+import EvidenceImage from '@/components/EvidenceImage.astro';
+
+interface Props {
+  entry: ResearchEntry;
+  index: number;
+}
+
+const { entry, index } = Astro.props;
+const headingId = `${entry.slug}-title`;
+---
+
+<article class="research-card" id={entry.slug} aria-labelledby={headingId} data-reveal>
+  <div class="aside">
+    <p class="label index">{String(index + 1).padStart(2, '0')} · {entry.area}</p>
+    <div class="figure">
+      <Figure kind={entry.figure} />
+    </div>
+    <StatusBadge status={entry.status} venue={entry.venue} note={entry.statusNote} layout="stack" />
+    <dl class="facts">
+      <div>
+        <dt>Period</dt>
+        <dd>{entry.year}</dd>
+      </div>
+      {
+        entry.collaborators && (
+          <div>
+            <dt>With</dt>
+            <dd>{entry.collaborators}</dd>
+          </div>
+        )
+      }
+    </dl>
+    {
+      entry.links.length > 0 && (
+        <ul class="links" role="list">
+          {entry.links.map((link) => (
+            <li>
+              <a
+                class="arrow-link"
+                href={link.href}
+                data-external={link.href.startsWith('http') ? '' : undefined}
+                rel={link.href.startsWith('http') ? 'noopener' : undefined}
+                aria-label={link.description ? `${link.label}: ${link.description}` : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+
+  <div class="content">
+    <h2 id={headingId} class="title">{entry.title}</h2>
+    <p class="question"><span class="label">Question</span>{entry.question}</p>
+    <div class="body prose">
+      <p>{entry.summary}</p>
+      {entry.body.map((paragraph) => <p>{paragraph}</p>)}
+      {
+        entry.role && (
+          <p class="role">
+            <span class="label">My part</span> {entry.role}
+          </p>
+        )
+      }
+    </div>
+
+    <div class="method-grid">
+      <section aria-labelledby={`${entry.slug}-methods`}>
+        <h3 id={`${entry.slug}-methods`} class="label">Approach</h3>
+        <ul class="methods">
+          {entry.methods.map((m) => <li>{m}</li>)}
+        </ul>
+      </section>
+      <section aria-labelledby={`${entry.slug}-concepts`}>
+        <h3 id={`${entry.slug}-concepts`} class="label">Concepts</h3>
+        <p class="concepts">{entry.concepts.join(' · ')}</p>
+      </section>
+    </div>
+
+    {
+      entry.images && entry.images.length > 0 && (
+        <div class="evidence">
+          {entry.images.map((image) => (
+            <EvidenceImage image={image} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .research-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+    border-top: var(--border);
+  }
+
+  .research-card:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  @media (min-width: 60rem) {
+    .research-card {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      gap: var(--space-8);
+    }
+
+    .aside {
+      position: sticky;
+      top: var(--space-6);
+      align-self: start;
+    }
+  }
+
+  .aside {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+  }
+
+  .index {
+    color: var(--color-ink-2);
+  }
+
+  .figure {
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  @media (max-width: 59.99rem) {
+    .figure {
+      max-width: 26rem;
+    }
+  }
+
+  .facts {
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .facts div {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    padding-top: 0.15em;
+  }
+
+  dd {
+    color: var(--color-ink-2);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    font-size: var(--text-sm);
+  }
+
+  .title {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .question {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    line-height: 1.42;
+    color: var(--color-ink);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
+    margin-bottom: var(--space-6);
+    max-width: var(--measure-wide);
+  }
+
+  .question .label {
+    display: block;
+    margin-bottom: var(--space-1);
+  }
+
+  .body {
+    color: var(--color-ink-2);
+  }
+
+  .role .label {
+    margin-right: 0.35em;
+    color: var(--color-ink);
+  }
+
+  .method-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .method-grid {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .method-grid h3 {
+    font-family: var(--font-mono);
+    margin-bottom: var(--space-3);
+  }
+
+  .methods {
+    padding-left: 1.1em;
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .methods li::marker {
+    color: var(--color-ink-3);
+  }
+
+  .concepts {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    line-height: 1.7;
+  }
+
+  .evidence {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+</style>

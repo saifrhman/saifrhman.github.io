@@ -1,0 +1,118 @@
+---
+import type { PublicationEntry } from '@/data/types';
+import StatusBadge from '@/components/StatusBadge.astro';
+import { site } from '@/data/site';
+
+interface Props {
+  entry: PublicationEntry;
+}
+
+const { entry } = Astro.props;
+
+// Emphasise the site owner's name in the author list.
+const parts = entry.authors.split(site.authorName);
+---
+
+<li class="publication">
+  <p class="year label">{entry.year}</p>
+  <div class="body">
+    <p class="title">{entry.title}</p>
+    <p class="authors">
+      {
+        parts.map((part, i) => (
+          <>
+            {part}
+            {i < parts.length - 1 && <strong>{site.authorName}</strong>}
+          </>
+        ))
+      }
+    </p>
+    <StatusBadge status={entry.status} venue={entry.venue} />
+    {entry.note && <p class="note">{entry.note}</p>}
+    {
+      (entry.links.length > 0 || entry.research) && (
+        <ul class="links" role="list">
+          {entry.research && (
+            <li>
+              <a href={`/research/#${entry.research}`} aria-label={`Details: ${entry.title}`}>
+                Details
+              </a>
+            </li>
+          )}
+          {entry.links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                rel={link.href.startsWith('http') ? 'noopener' : undefined}
+                aria-label={`${link.label}: ${entry.title}`}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</li>
+
+<style>
+  .publication {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2) var(--space-6);
+    padding-block: var(--space-5);
+    border-top: var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .publication {
+      grid-template-columns: 5rem minmax(0, 1fr);
+    }
+  }
+
+  .publication:first-child {
+    border-top: 0;
+  }
+
+  .year {
+    padding-top: 0.3em;
+  }
+
+  .note {
+    font-size: var(--text-xs);
+    color: var(--color-ink-3);
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-2);
+    max-width: var(--measure-wide);
+  }
+
+  .title {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    line-height: 1.3;
+    color: var(--color-ink);
+  }
+
+  .authors {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+
+  .authors strong {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.02em;
+  }
+</style>

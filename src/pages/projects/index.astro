@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import { projects } from '@/data/projects';
+import { site } from '@/data/site';
+---
+
+<BaseLayout
+  title="Projects"
+  description="Selected ML engineering projects by Saif Ur Rehman: evidence-checked retrieval over the FIA F1 regulations, weakly supervised receipt extraction, a football data platform, tactical retrieval research and Bayesian optimisation."
+>
+  <div class="container page">
+    <SectionHeading
+      level={1}
+      eyebrow="Engineering"
+      title="Selected projects"
+      description="A small selection, chosen for what was technically interesting rather than for coverage. Each card says what the repository shows, including what it does not show yet."
+    />
+    <div class="list">
+      {projects.map((project) => <ProjectCard project={project} headingLevel={2} variant={project.featured ? 'feature' : 'compact'} />)}
+    </div>
+    <p class="more">
+      Other repositories, including coursework and early experiments, are on <a href={site.github} rel="noopener">GitHub</a>.
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-top: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .more {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: var(--border);
+    font-size: var(--text-sm);
+    color: var(--color-ink-3);
+  }
+</style>

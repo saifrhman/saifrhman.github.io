@@ -1,0 +1,133 @@
+/*
+  Design tokens. Every colour, size, radius and timing used by components
+  should come from here. Light theme is the default; dark theme applies from
+  the system preference unless the visitor has picked a theme explicitly.
+*/
+
+:root {
+  /* Typefaces (the font variables are injected by Astro's fonts API) */
+  --font-serif: var(--font-newsreader), Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-plex-sans), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Type scale: fluid between ~360px and ~1280px viewports */
+  --text-2xs: 0.6875rem; /* 11px, mono micro labels only */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1.0625rem; /* 17px body */
+  --text-md: 1.1875rem; /* 19px lead */
+  --text-lg: clamp(1.3125rem, 1.2rem + 0.45vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+  --text-2xl: clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem);
+  --text-3xl: clamp(2.375rem, 1.7rem + 3vw, 4.25rem);
+
+  --leading-tight: 1.12;
+  --leading-snug: 1.3;
+  --leading-body: 1.62;
+
+  --tracking-display: -0.018em;
+  --tracking-label: 0.07em;
+
+  /* Spacing: 4px base */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --section-gap: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+
+  /* Layout */
+  --page-max: 74rem;
+  --measure: 40rem;
+  --measure-wide: 48rem;
+  --gutter: clamp(1rem, 0.5rem + 3vw, 2.5rem);
+  --header-h: 4rem;
+
+  /* Shape */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --border: 1px solid var(--color-rule);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 140ms;
+  --duration-base: 240ms;
+  --duration-slow: 600ms;
+
+  /* Light theme (default) */
+  --color-bg: #f4f2ec;
+  --color-surface: #faf9f5;
+  --color-surface-2: #eeebe3;
+  --color-ink: #17181b;
+  --color-ink-2: #44464c;
+  --color-ink-3: #65676d;
+  --color-rule: #d9d5ca;
+  --color-rule-strong: #bdb8ab;
+  --color-accent: #b0421b;
+  --color-accent-soft: rgb(176 66 27 / 0.1);
+  --color-focus: #b0421b;
+  --color-status-progress: #9a6200;
+  --color-status-review: #2c5aa0;
+  --color-status-done: #2f6b3d;
+  --color-figure-ink: #17181b;
+  --color-figure-muted: #8d8a80;
+  --shadow-raised: 0 1px 2px rgb(23 24 27 / 0.04), 0 8px 24px -12px rgb(23 24 27 / 0.16);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #0e0f11;
+    --color-surface: #15171a;
+    --color-surface-2: #1c1e22;
+    --color-ink: #ebe9e3;
+    --color-ink-2: #b3b1aa;
+    --color-ink-3: #8e8c86;
+    --color-rule: #2a2c30;
+    --color-rule-strong: #3d4046;
+    --color-accent: #ec8a5e;
+    --color-accent-soft: rgb(236 138 94 / 0.12);
+    --color-focus: #ec8a5e;
+    --color-status-progress: #dcaa4f;
+    --color-status-review: #86a9e0;
+    --color-status-done: #7fbf8c;
+    --color-figure-ink: #ebe9e3;
+    --color-figure-muted: #6f6e69;
+    --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #0e0f11;
+  --color-surface: #15171a;
+  --color-surface-2: #1c1e22;
+  --color-ink: #ebe9e3;
+  --color-ink-2: #b3b1aa;
+  --color-ink-3: #8e8c86;
+  --color-rule: #2a2c30;
+  --color-rule-strong: #3d4046;
+  --color-accent: #ec8a5e;
+  --color-accent-soft: rgb(236 138 94 / 0.12);
+  --color-focus: #ec8a5e;
+  --color-status-progress: #dcaa4f;
+  --color-status-review: #86a9e0;
+  --color-status-done: #7fbf8c;
+  --color-figure-ink: #ebe9e3;
+  --color-figure-muted: #6f6e69;
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+
+  color-scheme: dark;
+}
+
+/* Breakpoints (for reference; CSS custom properties cannot be used in media queries):
+   sm 40rem (640px) · md 48rem (768px) · lg 64rem (1024px) · xl 80rem (1280px) */

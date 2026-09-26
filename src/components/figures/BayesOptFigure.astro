@@ -1,0 +1,71 @@
+---
+/** Best-so-far CV accuracy for BO vs random search, from the repo's committed CSVs. */
+import { BO_SCORES, RANDOM_SCORES, BO_INITIAL_DESIGN } from '@/data/figures/bo-trials';
+import { r1 } from '@/lib/random';
+
+const W = 400;
+const H = 300;
+const pad = { l: 46, r: 64, t: 30, b: 42 };
+const yMin = 0.94;
+const yMax = 0.964;
+const n = BO_SCORES.length;
+
+const x = (i: number) => pad.l + (i / (n - 1)) * (W - pad.l - pad.r);
+const y = (v: number) => pad.t + (1 - (v - yMin) / (yMax - yMin)) * (H - pad.t - pad.b);
+
+const bestSoFar = (scores: readonly number[]) => {
+  let best = -Infinity;
+  return scores.map((s) => (best = Math.max(best, s)));
+};
+const step = (values: number[]) =>
+  values.map((v, i) => (i === 0 ? `M${r1(x(i))} ${r1(y(v))}` : `H${r1(x(i))}V${r1(y(v))}`)).join('');
+
+const bo = bestSoFar(BO_SCORES);
+const rand = bestSoFar(RANDOM_SCORES);
+const boFinal = bo[bo.length - 1]!;
+const randFinal = rand[rand.length - 1]!;
+const yTicks = [0.94, 0.95, 0.96];
+const xTicks = [0, 8, 16, 24, 32];
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label={`Best cross-validation accuracy so far against trial number for Bayesian optimisation and random search, single seed. Both share the first ${BO_INITIAL_DESIGN} trials; BO finishes at ${boFinal.toFixed(4)} and random search at ${randFinal.toFixed(4)}.`}
+>
+  <rect class="f-soft" x={x(0)} y={pad.t} width={x(BO_INITIAL_DESIGN - 1) - x(0)} height={H - pad.t - pad.b} opacity="0.7"></rect>
+  <text class="t-muted t-small" x={x(0) + 4} y={pad.t + 12}>shared initial design</text>
+  {
+    yTicks.map((t) => (
+      <g>
+        <line class="s-rule hair" x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} />
+        <text class="t-muted" x={pad.l - 8} y={y(t) + 3} text-anchor="end">
+          {t.toFixed(2)}
+        </text>
+      </g>
+    ))
+  }
+  {
+    xTicks.map((t) => (
+      <text class="t-muted" x={x(t)} y={H - pad.b + 16} text-anchor="middle">
+        {t}
+      </text>
+    ))
+  }
+  <text class="t-muted" x={(pad.l + W - pad.r) / 2} y={H - 8} text-anchor="middle">trial</text>
+  <text class="t-muted" x={12} y={pad.t - 12}>best 5-fold CV accuracy</text>
+
+  <path class="s-ink medium round" d={step(rand)}></path>
+  <path class="s-accent thick round" d={step(bo)}></path>
+  {
+    RANDOM_SCORES.map((s, i) => <circle class="f-muted" cx={x(i)} cy={y(s)} r="1.4" opacity="0.8" />)
+  }
+  {
+    BO_SCORES.map((s, i) =>
+      i >= BO_INITIAL_DESIGN ? <circle class="f-accent" cx={x(i)} cy={y(s)} r="1.6" opacity="0.55" /> : null,
+    )
+  }
+  <text class="t-accent" x={W - pad.r + 6} y={y(boFinal) + 3}>BO</text>
+  <text x={W - pad.r + 6} y={y(randFinal) + 10}>random</text>
+</svg>

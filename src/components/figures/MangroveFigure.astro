@@ -1,0 +1,77 @@
+---
+/**
+ * Study-selection flow of the mangrove scoping review, from the team's PRISMA
+ * flow diagram: 128 records from five sources, 29 duplicated publisher entries
+ * removed, 99 screened, 85 full texts assessed, 24 studies included.
+ */
+const W = 400;
+const H = 300;
+const stages = [
+  { label: 'records retrieved', note: '5 sources', n: 128 },
+  { label: 'screened', note: 'title and abstract', n: 99 },
+  { label: 'full texts assessed', note: '', n: 85 },
+  { label: 'studies included', note: '', n: 24 },
+];
+const exclusions = [
+  { n: 29, text: 'publisher duplicates' },
+  { n: 14, text: 'excluded at screening' },
+  { n: 61, text: 'excluded at full text' },
+];
+const bx = 24;
+const bw = 176;
+const bh = 40;
+const top = 26;
+const gap = 26;
+const ex = 244;
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label="Study selection flow: 128 records retrieved from five sources; 29 duplicated publisher entries removed; 99 screened; 14 excluded at screening; 85 full texts assessed; 61 excluded at full text (no geographic data 14, no relevant computational analysis 25, off-topic 22); 24 studies included."
+>
+  <defs>
+    <marker id="mg-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L8 4 L0 8 z" class="f-muted"></path>
+    </marker>
+  </defs>
+  {
+    stages.map((s, i) => {
+      const y = top + i * (bh + gap);
+      const last = i === stages.length - 1;
+      return (
+        <g>
+          <rect class={last ? 'f-accent-soft s-accent thin' : 'f-surface s-ink thin'} x={bx} y={y} width={bw} height={bh} rx="4" />
+          <text class={last ? 't-accent t-strong' : 't-strong'} x={bx + 12} y={y + 17}>
+            {s.label}
+          </text>
+          {s.note && (
+            <text class="t-muted t-small" x={bx + 12} y={y + 31}>
+              {s.note}
+            </text>
+          )}
+          <text class={last ? 't-accent t-serif' : 't-serif'} x={bx + bw - 12} y={y + 26} text-anchor="end">
+            {s.n}
+          </text>
+          {!last && <line class="s-muted thin" x1={bx + bw / 2} x2={bx + bw / 2} y1={y + bh} y2={y + bh + gap - 2} marker-end="url(#mg-arrow)" />}
+          {!last && (
+            <g>
+              <line class="s-rule thin dashed" x1={bx + bw} x2={ex - 4} y1={y + bh + gap / 2} y2={y + bh + gap / 2} />
+              <line class="s-rule thin dashed" x1={bx + bw / 2} x2={bx + bw} y1={y + bh + gap / 2} y2={y + bh + gap / 2} />
+              <text class="t-serif" x={ex} y={y + bh + gap / 2 + 4}>
+                −{exclusions[i]!.n}
+              </text>
+              <text class="t-muted t-small" x={ex + 30} y={y + bh + gap / 2 + 3}>
+                {exclusions[i]!.text}
+              </text>
+            </g>
+          )}
+        </g>
+      );
+    })
+  }
+  <text class="t-muted t-small" x={ex} y={top + 3 * (bh + gap) - 6}>full-text reasons: no geographic</text>
+  <text class="t-muted t-small" x={ex} y={top + 3 * (bh + gap) + 6}>data 14 · no computational</text>
+  <text class="t-muted t-small" x={ex} y={top + 3 * (bh + gap) + 18}>analysis 25 · off-topic 22</text>
+</svg>

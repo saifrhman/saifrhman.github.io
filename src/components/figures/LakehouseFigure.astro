@@ -1,0 +1,62 @@
+---
+/** Bronze / silver / gold layering of the football data platform (counts from the repo). */
+const W = 400;
+const H = 300;
+const columns = [
+  { x: 16, title: 'bronze', note: 'raw JSON', items: ['competitions', 'matches', 'events', 'lineups', 'three-sixty'] },
+  {
+    x: 144,
+    title: 'silver',
+    note: '9 typed tables',
+    items: ['competitions', 'matches', 'teams', 'players', 'events', 'shots', 'passes', 'pressures', '360 frames'],
+  },
+  { x: 272, title: 'gold', note: 'dbt marts', items: ['dim × 5', 'fact_events', 'fact_passes', 'fact_shots', 'fact_pressures'] },
+];
+const colW = 112;
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label="Schematic: StatsBomb data flows from bronze raw JSON, to nine typed silver tables loaded into BigQuery, to dbt gold marts with five dimensions and four facts covered by 23 tests, served by an API and a dashboard."
+>
+  {
+    columns.map((col, c) => (
+      <g>
+        <text class="t-strong" x={col.x} y="24">
+          {col.title}
+        </text>
+        <text class="t-muted t-small" x={col.x + colW} y="24" text-anchor="end">
+          {col.note}
+        </text>
+        <line class={c === 2 ? 's-accent medium' : 's-ink medium'} x1={col.x} x2={col.x + colW} y1="32" y2="32" />
+        {col.items.map((item, i) => (
+          <g>
+            <rect class="f-surface s-rule thin" x={col.x} y={42 + i * 20} width={colW} height="16" rx="2.5" />
+            <text x={col.x + 7} y={53.5 + i * 20}>
+              {item}
+            </text>
+          </g>
+        ))}
+      </g>
+    ))
+  }
+  <path class="s-muted thin" d="M130 100 H 140 M 136 96 L 140 100 L 136 104"></path>
+  <path class="s-muted thin" d="M258 100 H 268 M 264 96 L 268 100 L 264 104"></path>
+
+  <rect class="f-accent-soft s-accent thin" x="272" y="160" width="112" height="22" rx="3"></rect>
+  <text class="t-accent" x="328" y="175" text-anchor="middle">23 dbt tests</text>
+
+  <path class="s-rule thin" d="M300 182 V 214 M 356 182 V 214"></path>
+  <rect class="f-surface s-ink thin" x="272" y="214" width="52" height="24" rx="3"></rect>
+  <text x="298" y="230" text-anchor="middle">API</text>
+  <rect class="f-surface s-ink thin" x="330" y="214" width="54" height="24" rx="3"></rect>
+  <text x="357" y="230" text-anchor="middle">dash</text>
+
+  <text class="t-muted t-small" x="144" y="238">BigQuery · explicit schemas</text>
+  <text class="t-muted t-small" x="16" y="160">hive-style paths</text>
+  <text class="t-muted t-small" x="16" y="172">per match_id</text>
+  <line class="s-rule hair dashed" x1="16" x2="384" y1="262" y2="262"></line>
+  <text class="t-muted t-small" x="16" y="280">parameterised SQL only · identifiers validated</text>
+</svg>
