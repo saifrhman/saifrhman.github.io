@@ -103,7 +103,7 @@ try {
             <p class="og-eyebrow">MSc Data Science &amp; AI · University of Liverpool</p>
             <h1>Saif Ur Rehman</h1>
             <p class="og-role">Machine learning engineer and AI researcher</p>
-            <p class="og-topics">Geometry foundation models · Multi-agent AI safety · Protein structure data · ML systems</p>
+            <p class="og-topics">Geometry foundation models · Multi-agent AI safety<br>Protein structure data · ML systems</p>
           </div>
           <div class="og-figure">${figure ? figure.outerHTML : ''}</div>
         </div>`;
@@ -114,7 +114,7 @@ try {
         .og-eyebrow { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; color: #65676d; margin: 0 0 28px; }
         h1 { font-family: var(--font-serif); font-weight: 400; font-size: 88px; line-height: 1; letter-spacing: -0.025em; color: #17181b; margin: 0; }
         .og-role { font-family: var(--font-serif); font-style: italic; font-size: 32px; color: #44464c; margin: 20px 0 0; }
-        .og-topics { font-family: var(--font-sans); font-size: 22px; line-height: 1.45; color: #44464c; margin: 40px 0 0; max-width: 34ch; }
+        .og-topics { font-family: var(--font-sans); font-size: 22px; line-height: 1.45; color: #44464c; margin: 40px 0 0; white-space: nowrap; }
         .og-figure svg { position: static !important; display: block; width: 380px !important; height: auto !important; }
         .og-figure .structure { opacity: 0; }
         .og-figure [data-structure='backbone'] { opacity: 1; }`;

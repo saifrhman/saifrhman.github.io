@@ -43,6 +43,32 @@ function apply(theme: Theme): void {
 const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
 if (root.dataset.theme === 'light' || root.dataset.theme === 'dark') syncMeta(root.dataset.theme);
 
+/** Re-read the stored choice, e.g. after a back-forward cache restore or a change in another tab. */
+function reapply(): void {
+  let saved: string | null;
+  try {
+    saved = localStorage.getItem('theme');
+  } catch {
+    // Storage unavailable: keep the current state.
+    return;
+  }
+  if (saved === 'light' || saved === 'dark') {
+    root.dataset.theme = saved;
+    syncMeta(saved);
+  } else {
+    delete root.dataset.theme;
+  }
+  if (button) sync(button);
+  window.dispatchEvent(new CustomEvent('themechange', { detail: current() }));
+}
+
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) reapply();
+});
+window.addEventListener('storage', (event) => {
+  if (event.key === 'theme') reapply();
+});
+
 if (button) {
   button.hidden = false;
   sync(button);

@@ -7,24 +7,23 @@ import { education, experience, competitions, certifications, skills } from '@/d
 
 <BaseLayout
   title="About"
-  description="Background, experience and education of Saif Ur Rehman: MSc Data Science and AI at the University of Liverpool, applied AI internship, and earlier systems and cloud engineering."
+  description="Background of Saif Ur Rehman: MSc Data Science and AI at Liverpool, an applied AI internship, and earlier systems and cloud engineering."
 >
   <div class="container page">
-    <SectionHeading level={1} eyebrow="About" title="About" />
+    <SectionHeading level={1} title="About" />
 
     <div class="intro">
       <div class="prose bio">
         <p class="lead">
-          I work across AI research and machine learning engineering. My research is about the reliability of learned
-          systems: whether geometry foundation models use the evidence in their input and whether their uncertainty can
-          be trusted, what language-model agents learn when they are trained on each other’s judgements, and how the
-          training data of protein structure models should be deduplicated.
+          I work across AI research and machine learning engineering. My current research covers evidence and
+          uncertainty in 3D/4D geometry models, reward misalignment between language-model agents, and geometry-aware
+          curation of protein structure data.
         </p>
         <p>
-          I am completing an MSc in Data Science and Artificial Intelligence at the University of Liverpool. My
-          dissertation built PDBClean, a geometry-aware curation pipeline for the Protein Data Bank whose output now
-          feeds an OpenFold retraining run, and I co-authored a study of peer-reward misalignment in multi-agent LLMs
-          that is under review at a NeurIPS 2026 workshop. I also work as an applied AI intern on real-time detection
+          I am completing an MSc in Data Science and Artificial Intelligence at the University of Liverpool. For my
+          dissertation I built PDBClean, a geometry-aware curation pipeline for the Protein Data Bank whose output now
+          feeds an OpenFold retraining run. I also co-authored a study of peer-reward misalignment in multi-agent LLMs,
+          and I work as an applied AI intern on real-time detection
           and redaction of confidential information in screen shares.
         </p>
         <p>
@@ -139,7 +138,10 @@ import { education, experience, competitions, certifications, skills } from '@/d
           ))
         }
       </ul>
-      <h3 class="label cert-title">Certifications</h3>
+    </section>
+
+    <section class="block" aria-labelledby="certifications-h">
+      <h2 id="certifications-h" class="block-title">Certifications</h2>
       <p class="certs">{certifications.join(' · ')}</p>
     </section>
   </div>
@@ -175,6 +177,7 @@ import { education, experience, competitions, certifications, skills } from '@/d
   }
 
   .quick {
+    align-self: start;
     display: grid;
     gap: var(--space-5);
     align-content: start;
@@ -309,13 +312,8 @@ import { education, experience, competitions, certifications, skills } from '@/d
     color: var(--color-ink-2);
   }
 
-  .cert-title {
-    font-family: var(--font-mono);
-    margin-top: var(--space-6);
-    margin-bottom: var(--space-2);
-  }
-
   .certs {
+    padding-top: var(--space-3);
     font-size: var(--text-sm);
     color: var(--color-ink-2);
   }

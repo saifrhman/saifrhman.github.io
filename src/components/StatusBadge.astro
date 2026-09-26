@@ -92,10 +92,10 @@ const tone = STATUS_TONE[status];
     color: var(--color-ink-2);
   }
 
-  .is-inline .venue::before,
-  .is-inline .note::before {
+  /* Separators trail each item, so a wrapped line never starts with one. */
+  .is-inline > :not(:last-child)::after {
     content: '·';
-    margin-right: var(--space-3);
+    margin-left: var(--space-3);
     color: var(--color-ink-3);
   }
 

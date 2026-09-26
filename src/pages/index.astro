@@ -4,11 +4,9 @@ import HeroFigure from '@/components/HeroFigure.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import ResearchRow from '@/components/ResearchRow.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
-import PublicationItem from '@/components/PublicationItem.astro';
 import { site } from '@/data/site';
 import { research } from '@/data/research';
 import { projects } from '@/data/projects';
-import { publications } from '@/data/publications';
 import { experience, education } from '@/data/experience';
 import { personJsonLd, websiteJsonLd } from '@/lib/structured-data';
 
@@ -25,8 +23,8 @@ const current = experience[0]!;
       <p class="statement">
         I work on the reliability of learned systems: whether 3D/4D geometry models use the evidence in their input, what
         language-model agents learn when their reward is another model’s judgement, and how redundancy in protein training
-        data should be measured. Alongside research I build ML systems end to end, from retrieval and data pipelines to
-        the evaluation that shows whether they work.
+        data should be measured. I also build the systems around models: retrieval, data pipelines and the evaluations
+        that test whether they work.
       </p>
       <div class="actions">
         <a class="button is-primary" href="/research/">Research</a>
@@ -47,7 +45,6 @@ const current = experience[0]!;
   <section class="section container" aria-labelledby="current-research">
     <SectionHeading
       id="current-research"
-      eyebrow="Research"
       title="Current research"
       link={{ label: 'Research in detail', href: '/research/' }}
     />
@@ -59,12 +56,11 @@ const current = experience[0]!;
   <section class="section container" aria-labelledby="selected-projects">
     <SectionHeading
       id="selected-projects"
-      eyebrow="Engineering"
       title="Selected projects"
       link={{ label: 'All projects', href: '/projects/' }}
     />
     <div class="projects">
-      {featured.map((project) => <ProjectCard project={project} />)}
+      {featured.map((project) => <ProjectCard project={project} variant="summary" />)}
     </div>
   </section>
 
@@ -74,8 +70,9 @@ const current = experience[0]!;
         <p class="label eyebrow">About</p>
         <h2 id="about-heading" class="about-title">Research and engineering, in roughly equal parts</h2>
         <p>
-          I am completing an MSc in Data Science and Artificial Intelligence at the University of Liverpool, where my
-          dissertation built PDBClean. Before that I spent nearly five years in systems, cloud and support engineering,
+          I am completing an MSc in Data Science and Artificial Intelligence at the University of Liverpool, where for my
+          dissertation I built PDBClean, a geometry-aware curation pipeline for the Protein Data Bank. Before that I
+          spent nearly five years in systems, cloud and support engineering,
           which is why I care about the machinery around a model (provenance, tests, failure modes) as much as the model
           itself.
         </p>
@@ -104,18 +101,6 @@ const current = experience[0]!;
         </div>
       </dl>
     </div>
-  </section>
-
-  <section class="section container" aria-labelledby="output-heading">
-    <SectionHeading
-      id="output-heading"
-      eyebrow="Research output"
-      title="Papers and manuscripts"
-      description="Nothing here is published yet. Each entry states exactly where it stands."
-    />
-    <ol class="publications" role="list">
-      {publications.map((entry) => <PublicationItem entry={entry} />)}
-    </ol>
   </section>
 </BaseLayout>
 
@@ -238,8 +223,12 @@ const current = experience[0]!;
   }
 
   @media (max-width: 59.99rem) {
+    .hero {
+      gap: var(--space-6);
+    }
+
     .hero-figure-wrap {
-      max-width: 28rem;
+      max-width: 22rem;
       justify-self: start;
     }
   }

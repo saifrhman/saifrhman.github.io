@@ -19,7 +19,12 @@ export const publications: PublicationEntry[] = [
     title: 'Geometric Evidence Utilization in Feed-Forward 4D Reconstruction',
     authors: 'Saif Ur Rehman (first author)',
     status: 'in-progress',
-    venue: { relation: 'target', name: 'CVPR', year: 2027 },
+    venue: {
+      relation: 'target',
+      name: 'CVPR',
+      year: 2027,
+      fullName: 'IEEE/CVF Conference on Computer Vision and Pattern Recognition',
+    },
     year: 2026,
     research: 'geometry-evidence',
     note: 'Working title',

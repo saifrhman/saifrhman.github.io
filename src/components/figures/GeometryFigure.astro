@@ -56,7 +56,7 @@ const missed = rays.filter((r) => !r.covered).length;
   aria-label={`Illustration: a camera casts nine rays toward a curved surface. Along each ray a predicted depth interval is drawn; ${missed} of the nine intervals miss the true surface and are marked in the accent colour. Coverage is the fraction of intervals that contain the truth.`}
 >
   <path class="s-ink medium round" d={surface}></path>
-  <text class="t-muted t-small" x="336" y="24">true surface</text>
+  <text class="t-muted t-small" x="392" y="24" text-anchor="end">true surface</text>
 
   {
     rays.map((r) => {

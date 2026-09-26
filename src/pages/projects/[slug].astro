@@ -37,7 +37,7 @@ const sections = [
 ];
 ---
 
-<BaseLayout title={project.title} description={`${project.problem} ${project.highlight.split('. ')[0]}.`} type="article">
+<BaseLayout title={project.title} description={project.seoDescription ?? project.problem} type="article">
   <article class="container page">
     <header class="head">
       <nav class="crumbs" aria-label="Breadcrumb">
@@ -148,7 +148,7 @@ const sections = [
       {
         next.slug !== project.slug && (
           <a class="next-link" href={`/projects/${next.slug}/`}>
-            <span class="label">Next design notes</span>
+            <span class="label">Next project</span>
             <span class="next-title">{next.title}</span>
           </a>
         )
@@ -214,7 +214,7 @@ const sections = [
   }
 
   h1 {
-    font-size: var(--text-3xl);
+    font-size: clamp(2.25rem, 1.6rem + 2vw, 3.25rem);
     font-weight: 400;
   }
 
@@ -380,6 +380,7 @@ const sections = [
   .next-link {
     display: grid;
     gap: var(--space-1);
+    margin-left: auto;
     text-align: right;
     text-decoration: none;
   }

@@ -3,6 +3,8 @@
  * PDBClean population funnel. Counts are from the dissertation (Table 4.1)
  * and the public repository's provenance record.
  */
+import { research } from '@/data/research';
+
 const W = 400;
 const H = 300;
 const stages = [
@@ -17,6 +19,8 @@ const top = 40;
 const gap = 56;
 const max = stages[0]!.n;
 const fmt = (n: number) => n.toLocaleString('en-GB');
+// The training status comes from the research entry so the figure cannot outlive it.
+const trainingNote = research.find((r) => r.slug === 'pdbclean')?.statusNote ?? '';
 ---
 
 <svg
@@ -47,5 +51,5 @@ const fmt = (n: number) => n.toLocaleString('en-GB');
     })
   }
   <text class="t-muted t-small" x={x0} y={top + stages.length * gap + 4}>78,754 geometric removals; 99.5% are sequence-identical</text>
-  <text class="t-muted t-small" x={x0} y={top + stages.length * gap + 18}>to their representative. OpenFold retraining: in progress.</text>
+  <text class="t-muted t-small" x={x0} y={top + stages.length * gap + 18}>to their representative.{trainingNote && ` ${trainingNote}.`}</text>
 </svg>

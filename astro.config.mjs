@@ -8,13 +8,13 @@ const fontFile = (pkg, file) => `./node_modules/${pkg}/files/${file}`;
 export default defineConfig({
   site: 'https://saifrhman.github.io',
   trailingSlash: 'always',
-  build: { format: 'directory' },
+  build: { format: 'directory', inlineStylesheets: 'always' },
   integrations: [sitemap()],
   vite: {
     // three.js is loaded lazily as its own chunk (~130 kB gzipped) for the hero figure.
     build: { chunkSizeWarningLimit: 600 },
   },
-  prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   fonts: [
     {
       provider: fontProviders.local(),
@@ -29,8 +29,9 @@ export default defineConfig({
             style: 'normal',
           },
           {
-            src: [fontFile('@fontsource-variable/newsreader', 'newsreader-latin-wght-italic.woff2')],
-            weight: '200 800',
+            // Italic is used for one line per page, so a static 400 file is enough.
+            src: [fontFile('@fontsource/newsreader', 'newsreader-latin-400-italic.woff2')],
+            weight: 400,
             style: 'italic',
           },
         ],

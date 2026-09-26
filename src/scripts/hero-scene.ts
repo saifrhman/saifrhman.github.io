@@ -1,8 +1,10 @@
 /**
  * WebGL version of the hero figure. Points carry a per-point spread that is
- * drawn as a soft halo and a slow wobble (read it as posterior samples); the
- * scene morphs between structures and tilts slightly with the pointer. There
- * is no constant rotation, and rendering stops when the figure is off screen.
+ * drawn as a soft halo and, briefly after each change, a wobble (read it as
+ * posterior samples) that settles within a few seconds. The scene morphs
+ * between structures when the visitor picks one and tilts slightly with the
+ * pointer. Frames are rendered only while something is changing, so an idle
+ * figure costs nothing.
  */
 import {
   BufferAttribute,
@@ -31,11 +33,14 @@ interface Callbacks {
 }
 
 const MORPH_MS = 1800;
+/** The wobble fades out over this long, so no motion lasts more than 5 s (WCAG 2.2.2). */
+const SETTLE_MS = 4000;
 
 const vertexShader = /* glsl */ `
   attribute float sigma;
   attribute float seed;
   uniform float uTime;
+  uniform float uWobble;
   uniform float uPixelRatio;
   uniform float uViewportH;
   uniform float uFocal;
@@ -47,7 +52,7 @@ const vertexShader = /* glsl */ `
 
   void main() {
     vec3 p = position;
-    p += 0.45 * sigma * vec3(
+    p += uWobble * 0.45 * sigma * vec3(
       sin(uTime * 0.61 + seed * 12.9),
       sin(uTime * 0.47 + seed * 7.1),
       sin(uTime * 0.53 + seed * 3.7)
@@ -69,6 +74,7 @@ const vertexShader = /* glsl */ `
 const fragmentShader = /* glsl */ `
   uniform vec3 uInk;
   uniform vec3 uAccent;
+  uniform float uInkHalo;
   varying float vAccent;
   varying float vCore;
   varying float vHalo;
@@ -79,10 +85,11 @@ const fragmentShader = /* glsl */ `
     if (d > 1.0) discard;
     float aa = 0.08;
     float core = 1.0 - smoothstep(vCore - aa, vCore + aa, d);
-    float halo = (1.0 - smoothstep(vHalo * 0.25, vHalo, d)) * mix(0.08, 0.17, vAccent);
+    float halo = (1.0 - smoothstep(vHalo * 0.25, vHalo, d)) * mix(uInkHalo, 0.17, vAccent);
     vec3 color = mix(uInk, uAccent, vAccent);
     float alpha = max(core * vFade, halo);
     gl_FragColor = vec4(color, alpha);
+    #include <colorspace_fragment>
   }
 `;
 
@@ -90,6 +97,9 @@ function readColor(el: HTMLElement, name: string, fallback: string): Color {
   const value = getComputedStyle(el).getPropertyValue(name).trim();
   return new Color(value || fallback);
 }
+
+/** Grey ink halos smudge on the light background, so they are fainter there. */
+const inkHalo = (ink: Color): number => (ink.r + ink.g + ink.b < 1.5 ? 0.03 : 0.08);
 
 const easeInOut = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
@@ -137,11 +147,13 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
     depthWrite: false,
     uniforms: {
       uTime: { value: 0 },
+      uWobble: { value: 1 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uViewportH: { value: 400 },
       uFocal: { value: focal },
       uThreshold: { value: SIGMA_ACCENT },
       uInk: { value: readColor(container, '--color-figure-ink', '#17181b') },
+      uInkHalo: { value: inkHalo(readColor(container, '--color-figure-ink', '#17181b')) },
       uAccent: { value: readColor(container, '--color-accent', '#b0421b') },
     },
   });
@@ -168,17 +180,22 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
     group.add(lines);
   }
 
-  // Morph state
+  // Morph and settle state. The wobble starts at full strength on load and
+  // after each change, then fades out over SETTLE_MS.
   let current: StructureId = initial;
   let from = { points: Float32Array.from(start.points), sigma: Float32Array.from(start.sigma) };
   let morphStart = -1;
+  let kickAt = performance.now();
+  const lineStart = new Map<StructureId, number>();
 
   const setStructure = (id: StructureId): void => {
     if (id === current && morphStart < 0) return;
     from = { points: Float32Array.from(positions), sigma: Float32Array.from(sigmas) };
+    for (const [key, material] of lineMaterials) lineStart.set(key, material.opacity);
     current = id;
     morphStart = performance.now();
-    if (!running) renderOnce();
+    kickAt = morphStart;
+    wake();
   };
 
   // Pointer parallax (fine pointers only)
@@ -190,6 +207,7 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
   const onPointerMove = (event: PointerEvent): void => {
     targetYaw = (event.clientX / window.innerWidth - 0.5) * 0.32;
     targetPitch = (event.clientY / window.innerHeight - 0.5) * 0.14;
+    wake();
   };
   if (finePointer) window.addEventListener('pointermove', onPointerMove, { passive: true });
 
@@ -197,11 +215,16 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
   const resize = (): void => {
     const { width, height } = container.getBoundingClientRect();
     if (width === 0 || height === 0) return;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    if (ratio !== renderer.getPixelRatio()) {
+      renderer.setPixelRatio(ratio);
+      pointMaterial.uniforms.uPixelRatio!.value = ratio;
+    }
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     pointMaterial.uniforms.uViewportH!.value = height;
-    if (!running) renderOnce();
+    wake();
   };
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(container);
@@ -211,21 +234,29 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
     requestAnimationFrame(() => {
       const ink = readColor(container, '--color-figure-ink', '#17181b');
       pointMaterial.uniforms.uInk!.value = ink;
+      pointMaterial.uniforms.uInkHalo!.value = inkHalo(ink);
       pointMaterial.uniforms.uAccent!.value = readColor(container, '--color-accent', '#b0421b');
       for (const material of lineMaterials.values()) material.color = ink;
-      if (!running) renderOnce();
+      wake();
     });
   };
   window.addEventListener('themechange', onTheme);
 
-  // Frame loop
+  // Frames are drawn on demand: only while running (visible, tab shown) and
+  // only while a morph, the wobble or the parallax easing is still changing.
   let running = false;
   let frame = 0;
   let readyFired = false;
   const t0 = performance.now();
 
+  const wobbleAt = (now: number): number => Math.max(0, 1 - (now - kickAt) / SETTLE_MS);
+  const busy = (now: number): boolean =>
+    morphStart >= 0 || wobbleAt(now) > 0 || Math.abs(targetYaw - yaw) > 1e-4 || Math.abs(targetPitch - pitch) > 1e-4;
+
   const update = (now: number): void => {
     pointMaterial.uniforms.uTime!.value = (now - t0) / 1000;
+    const w = wobbleAt(now);
+    pointMaterial.uniforms.uWobble!.value = w * w;
 
     if (morphStart >= 0) {
       const t = Math.min(1, (now - morphStart) / MORPH_MS);
@@ -240,39 +271,43 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
       positionAttr.needsUpdate = true;
       sigmaAttr.needsUpdate = true;
       for (const [id, material] of lineMaterials) {
-        const goal = id === current ? 0.32 : 0;
-        // Fade old lines out in the first half, new lines in during the second.
-        material.opacity = id === current ? goal * Math.max(0, (e - 0.5) * 2) : Math.min(material.opacity, 0.32 * Math.max(0, 1 - e * 2));
+        // Fade old lines out in the first half, new lines in during the second,
+        // starting from wherever an interrupted morph left them.
+        const begin = lineStart.get(id) ?? material.opacity;
+        material.opacity =
+          id === current ? begin + (0.32 - begin) * Math.max(0, (e - 0.5) * 2) : begin * Math.max(0, 1 - e * 2);
       }
       if (t >= 1) morphStart = -1;
     }
 
-    yaw += (targetYaw - yaw) * 0.05;
-    pitch += (targetPitch - pitch) * 0.05;
+    yaw += (targetYaw - yaw) * 0.08;
+    pitch += (targetPitch - pitch) * 0.08;
     group.rotation.set(VIEW.pitch + pitch, VIEW.yaw + yaw, 0);
   };
 
-  const renderOnce = (): void => {
-    update(performance.now());
-    renderer.render(scene, camera);
-  };
-
   const loop = (now: number): void => {
-    if (!running) return;
+    frame = 0;
+    if (!running || destroyed) return;
     update(now);
     renderer.render(scene, camera);
     if (!readyFired) {
       readyFired = true;
       callbacks.onReady();
     }
-    frame = requestAnimationFrame(loop);
+    if (busy(now)) frame = requestAnimationFrame(loop);
   };
 
+  function wake(): void {
+    if (running && !destroyed && frame === 0) frame = requestAnimationFrame(loop);
+  }
+
   const setRunning = (next: boolean): void => {
-    if (next === running) return;
     running = next;
-    cancelAnimationFrame(frame);
-    if (running) frame = requestAnimationFrame(loop);
+    if (running) wake();
+    else {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    }
   };
 
   let destroyed = false;
@@ -281,6 +316,7 @@ export function createHeroScene(container: HTMLElement, initial: StructureId, ca
     destroyed = true;
     running = false;
     cancelAnimationFrame(frame);
+    frame = 0;
     resizeObserver.disconnect();
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('themechange', onTheme);

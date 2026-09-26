@@ -16,7 +16,7 @@ const teaser = firstSentence(entry.question);
 <li class="row" data-reveal>
   <span class="index label" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
   <div class="main">
-    <p class="label area">{entry.area}</p>
+    <p class="label area"><span class="index-inline" aria-hidden="true">{String(index + 1).padStart(2, '0')} · </span>{entry.area}</p>
     <h3 class="title">
       <a href={`/research/#${entry.slug}`}>{entry.title}</a>
     </h3>
@@ -55,6 +55,29 @@ const teaser = firstSentence(entry.question);
   .index {
     padding-top: 0.2rem;
     color: var(--color-accent);
+  }
+
+  .index-inline {
+    display: none;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 30rem) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .index {
+      display: none;
+    }
+
+    .index-inline {
+      display: inline;
+    }
+
+    .meta {
+      grid-column: 1;
+    }
   }
 
   .main {

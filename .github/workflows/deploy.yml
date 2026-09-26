@@ -11,7 +11,8 @@ permissions:
 
 concurrency:
   group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a production deploy that is already running.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -30,6 +31,13 @@ jobs:
       - run: npm run build
       # Runs after the build so the dist/ link and metadata checks are included.
       - run: npm test
+
+      # Re-render the CV PDF from the built /cv/ page so the download always
+      # matches it (ubuntu-latest ships Google Chrome).
+      - name: Render CV PDF
+        run: |
+          node scripts/render-assets.mjs cv
+          cp public/cv/saif-ur-rehman-cv.pdf dist/cv/saif-ur-rehman-cv.pdf
 
       - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request'

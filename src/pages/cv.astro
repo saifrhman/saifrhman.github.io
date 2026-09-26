@@ -1,7 +1,7 @@
 ---
 /**
  * Printable CV, generated from the same data as the rest of the site so the two
- * cannot drift apart. `npm run cv:pdf` prints this page to
+ * cannot drift apart. `npm run assets` prints this page to
  * public/cv/saif-ur-rehman-cv.pdf.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -10,7 +10,6 @@ import { research } from '@/data/research';
 import { projects } from '@/data/projects';
 import { education, experience, competitions, skills } from '@/data/experience';
 import { STATUS_LABEL, venueLabel } from '@/lib/status';
-import { firstSentence } from '@/lib/text';
 
 const statusLine = (r: (typeof research)[number]) =>
   [STATUS_LABEL[r.status], r.venue ? venueLabel(r.venue) : null, r.statusNote ?? null].filter(Boolean).join(' · ');
@@ -84,10 +83,15 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
           research.map((r) => (
             <div class="item">
               <div class="item-head">
-                <h3>{r.title}</h3>
+                <h3>{r.formalTitle ?? r.title}</h3>
                 <p class="dates">{r.year}</p>
               </div>
               <p class="status">{statusLine(r)}</p>
+              {r.links.map((l) => (
+                <p class="dates repo">
+                  <a href={l.href}>{host(l.href)}</a>
+                </p>
+              ))}
               <p>{r.question}</p>
               {r.role && <p class="muted">{r.role}</p>}
             </div>
@@ -125,7 +129,7 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
                   <a href={p.repo}>{host(p.repo)}</a>
                 </p>
               </div>
-              <p>{firstSentence(p.description)}</p>
+              <p>{p.cv}</p>
             </div>
           ))
         }
@@ -150,7 +154,7 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
           {
             skills.map((g) => (
               <li>
-                <strong>{g.title}</strong>: {g.items.join(', ')}
+                <strong>{g.title}</strong>: {g.items.join(' · ')}
               </li>
             ))
           }
@@ -246,11 +250,20 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
   }
 
   .item-head {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
     align-items: baseline;
-    gap: 0 var(--space-4);
+  }
+
+  @media (max-width: 30rem) {
+    .item-head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .item-head .dates {
+      grid-row: 1;
+    }
   }
 
   h3 {

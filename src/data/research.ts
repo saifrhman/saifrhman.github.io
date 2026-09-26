@@ -19,13 +19,13 @@ export const research: ResearchEntry[] = [
       year: 2027,
       fullName: 'IEEE/CVF Conference on Computer Vision and Pattern Recognition',
     },
-    year: '2026–present',
+    year: '2026 – present',
     question:
       'When a feed-forward 3D/4D reconstruction model gives a confident answer, is that answer supported by the geometry in its input or by a learned prior that merely looks plausible? And could the model’s uncertainty tell the two apart?',
     summary:
-      'Models in the DUSt3R and VGGT line, and newer 4D reconstructors such as Any4D, 4RC and D4RT, recover depth, camera motion and scene dynamics in a single forward pass. They always return an answer, including where the images do not determine it, as in the classical scale, depth and velocity ambiguity of a moving object filmed from a moving camera. Accuracy benchmarks average over well-posed and ill-posed inputs, so they cannot show which of the two a model is doing.',
+      'Models in the DUSt3R and VGGT line, and newer 4D reconstructors such as Any4D, 4RC and D4RT, recover depth, camera motion and scene dynamics in a single forward pass. They always return an answer, including where the images do not determine it, as in the classical scale, depth and velocity ambiguity of a moving object filmed from a moving camera. Accuracy benchmarks average over well-posed and ill-posed inputs, so they cannot show whether a model is using the evidence or falling back on its prior.',
     body: [
-      'The project builds a controlled synthetic setting in which the geometric information available about a specific physical quantity can be varied continuously, from none to well-conditioned, with a classical maximum-likelihood estimator as the reference for what that information allows. Model error is then read as a response curve over conditioning rather than as a single average. An arm that supplies ground-truth camera poses separates failures of camera estimation from failures to use evidence that is present, and a null control changes the images without adding information.',
+      'The project builds a controlled synthetic setting in which the geometric information about one physical quantity can be varied continuously, from none at all to well-conditioned. A classical maximum-likelihood estimator serves as the reference for what that information allows. Model error is then read as a response curve over conditioning rather than as a single average. An arm that supplies ground-truth camera poses separates failures of camera estimation from failures to use evidence that is present, and a null control changes the images without adding information.',
       'The second strand concerns uncertainty: whether amortised posteriors or calibrated intervals over geometry can flag the predictions an input does not support, judged by calibration and coverage, including under distribution shift.',
     ],
     methods: [
@@ -33,7 +33,7 @@ export const research: ResearchEntry[] = [
       'Information-based conditioning measure, checked against Monte Carlo maximum likelihood',
       'Classical trajectory-geometry estimator as an external reference',
       'Ground-truth camera-pose intervention and null-control perturbations',
-      'Held-out scenes locked before model development and evaluated once',
+      'Go/no-go gate and abandon criterion fixed in advance, on effect size',
       'Calibration and coverage analysis of predicted uncertainty',
     ],
     concepts: [
@@ -51,7 +51,7 @@ export const research: ResearchEntry[] = [
   {
     slug: 'peer-reward-misalignment',
     title: 'Peer-reward misalignment in multi-agent LLMs',
-    shortTitle: 'Multi-agent wireheading',
+    shortTitle: 'Peer-reward misalignment',
     area: 'AI safety · multi-agent RL',
     status: 'under-review',
     venue: { relation: 'submitted', name: 'a NeurIPS 2026 workshop' },
@@ -59,9 +59,9 @@ export const research: ResearchEntry[] = [
     question:
       'If two language-model agents grade each other and each is trained on the grade its peer assigns, is giving the solving and grading roles to different models enough to keep the training signal honest?',
     summary:
-      'A model rewarded by its own evaluation can learn to inflate that evaluation instead of doing the task, a form of wireheading (Africa and Ting, 2025). This study moves the evaluator to a second agent. Two LoRA policies share a frozen 7–9B base model; each solves a different task instance and grades the other’s answer. Training runs in two matched conditions: the reward is the peer’s grade, or the reward is the external task metric while peer grading still takes place.',
+      'A model rewarded by its own evaluation can learn to inflate that evaluation instead of doing the task, a form of wireheading (Africa and Ting, 2025). This study moves the evaluator to a second agent. Two LoRA policies share a frozen 7–9B base model; each solves a different task instance and grades the other’s answer. Training runs in two matched conditions: reward-coupled, where the reward is the peer’s grade, and reward-decoupled, where the reward is the external task metric while peer grading still takes place.',
     body: [
-      'The grid covers three base models (Llama-3.1-8B, Gemma-2-9B, Mistral-7B), six tasks and two optimisers (REINFORCE and PPO), with one seed per configuration. In most matched pairs, external task performance was lower when the reward was the peer’s grade, and the coupled–decoupled difference was driven more by degraded task performance than by more generous grading. The gap between peer score and metric was concentrated in summarisation, where much of it existed before training. Part of the difference is expected by construction, since the decoupled arm optimises the metric being reported, and performance is measured on the training pool rather than on held-out data. The paper claims neither collusion nor reciprocity as the mechanism.',
+      'The grid covers three base models (Llama-3.1-8B, Gemma-2-9B, Mistral-7B), six tasks and two policy-gradient algorithms (REINFORCE and PPO), with one seed per configuration. In most matched pairs, external task performance was lower when the reward was the peer’s grade, and the coupled–decoupled difference was driven more by degraded task performance than by more generous grading. The gap between peer score and metric was concentrated in summarisation, where much of it existed before training. Part of the difference is expected by construction, since the decoupled arm optimises the metric being reported. Performance is also measured on the training pool rather than on held-out data. The paper claims neither collusion nor reciprocity as the mechanism.',
       'A short game-theoretic section treats the setting as a two-agent partially observable stochastic game and gives sufficient conditions for the reward channel to be fully decoupled from peer evaluation.',
     ],
     role:
@@ -89,22 +89,23 @@ export const research: ResearchEntry[] = [
   },
   {
     slug: 'pdbclean',
-    title: 'Beyond AlphaFold: Filling the Blind Spots in Protein Structure Prediction',
+    title: 'Geometry-aware curation of protein structure training data',
+    formalTitle: 'Beyond AlphaFold: Filling the Blind Spots in Protein Structure Prediction',
     shortTitle: 'Beyond AlphaFold / PDBClean',
     area: 'Scientific ML · structural biology',
     status: 'dissertation',
     statusNote: 'OpenFold retraining in progress',
     year: '2026',
     question:
-      'Structure predictors such as AlphaFold2 and OpenFold are trained on the Protein Data Bank, where redundancy is usually controlled by sequence identity. What changes when redundancy is measured on backbone geometry instead, exactly and across the whole archive?',
+      'What changes when redundancy in the Protein Data Bank, the training data for AlphaFold2 and OpenFold, is measured exactly on backbone geometry across the whole archive, rather than by the usual sequence identity?',
     summary:
-      'PDBClean takes a fixed PDB snapshot (1 January 2026) through six recorded cleaning rules and a geometric validation gate, then computes the complete Backbone Rigid Invariant (BRI; Anosova et al., 2025) for each of 578,524 eligible chains. BRI describes an ordered N–Cα–C backbone in local residue frames, and two backbones have equal invariants exactly when a rigid motion maps one onto the other, so a distance between invariants is a distance between shapes rather than between sequences.',
+      'PDBClean takes a fixed PDB snapshot (1 January 2026) through six numbered cleaning rules, with every rejection recorded, and a geometric validation gate, then computes the complete Backbone Rigid Invariant (BRI; Anosova et al., 2025) for each of 578,524 eligible chains. BRI describes an ordered N–Cα–C backbone in local residue frames, and two backbones have equal invariants exactly when a rigid motion maps one onto the other, so a distance between invariants is a distance between shapes rather than between sequences.',
     body: [
-      'Near-duplicates are chains within 0.010 Å of each other in L∞ distance between invariants. The search partitions chains by length, prunes with a nine-dimensional averaged invariant that provably never exceeds the full distance, so the prefilter cannot lose a pair, and resolves the candidates with an exact compressed cover tree whose output matched an exhaustive comparison of the same candidates pair for pair (1,072,751 qualifying pairs). Because closeness under a threshold is not transitive, each of the 78,754 removals rests on a direct edge to a deterministically ranked representative, and the manifests record every decision with its distance. 499,770 chains are retained, and a full re-run from the same snapshot reproduced the release exactly.',
-      'Compared with MMseqs2 clustering on the same population, the two criteria turn out to be nested rather than complementary: 99.5% of geometric removals are sequence-identical to their representative, while keeping one chain per sequence removes a further 357,714 chains that differ measurably in shape. The resulting 142,056-chain population has been converted into OpenFold inputs with freshly generated MSAs, and from-scratch retraining on it is in progress. No claim about prediction accuracy is made until it finishes.',
+      'Near-duplicates are chains within 0.010 Å of each other in L∞ distance between invariants. The search partitions chains by length, then prunes with a nine-dimensional averaged invariant whose distance is a proven lower bound on the full distance, so the prefilter cannot lose a pair. An exact compressed cover tree resolves the remaining candidates; its output matched an exhaustive comparison of the same candidates pair for pair (1,072,751 qualifying pairs). Because closeness under a threshold is not transitive, each of the 78,754 removals rests on a direct edge to a deterministically ranked representative, and the manifests record every decision with its distance. The release retains 499,770 chains, and a full re-run from the same snapshot reproduced it exactly.',
+      'Compared with MMseqs2 clustering on the same population, the two criteria turn out to be nearly nested rather than complementary: 99.5% of geometric removals are sequence-identical to their representative, while keeping one chain per sequence removes a further 357,714 chains that the geometric criterion had kept, nearly all of which differ measurably in shape from the chain kept for their sequence. The resulting 142,056-chain population has been converted into OpenFold inputs with freshly generated multiple sequence alignments (MSAs), and from-scratch retraining on it is in progress. No claim about prediction accuracy is made until it finishes.',
     ],
     role:
-      'Sole author of the dissertation, supervised by Dr Olga Anosova (University of Liverpool). The invariant, the cleaning protocol and the multi-stage search strategy come from earlier BRI work on the PDB, and the OpenFold scripts started from a predecessor project. I re-implemented and scaled that protocol, implemented the compressed cover tree, and added the direct-edge removal policy, the provenance and validation layers, the sequence-redundancy comparison and the OpenFold data projection.',
+      'Sole author of the dissertation, supervised by Dr Olga Anosova (University of Liverpool). The invariant, the cleaning protocol and the multi-stage search strategy come from earlier BRI work on the PDB, and the OpenFold scripts started from a predecessor project. I re-implemented and scaled that protocol, implemented the compressed cover tree of Elkin and Kurlin (2023), and added the direct-edge removal policy, the provenance and validation layers, the sequence-redundancy comparison and the projection of retained chains onto OpenFold’s training inputs.',
     methods: [
       'Fixed PDB snapshot with a re-verified provenance manifest',
       'Six numbered cleaning rules, with every rejection recorded',
@@ -136,19 +137,20 @@ export const research: ResearchEntry[] = [
   },
   {
     slug: 'mangrove-review',
-    title:
+    title: 'A scoping review of data and computational tools for mangrove restoration',
+    formalTitle:
       'Geographical Data and Computational Tools for Determining Restoration Priorities in Mangrove Ecosystems: A Scoping Review',
-    shortTitle: 'AI for mangrove conservation',
+    shortTitle: 'Mangrove restoration review',
     area: 'Remote sensing · environmental ML',
     status: 'in-preparation',
     statusNote: 'Scoping review; began as MSc group coursework',
-    year: '2025–2026',
+    year: '2025 – 2026',
     question:
       'Which remote-sensing data and machine-learning methods are used to decide where mangrove restoration is needed, how are they evaluated, and do they hold up outside the region they were developed in?',
     summary:
       'A five-author scoping review following PRISMA-ScR guidance. Of 128 records retrieved from five sources, 99 were screened after duplicated publisher entries were removed, 85 full texts were assessed and 24 studies were included. The review organises the evidence by sensing modality (optical, SAR, LiDAR, hyperspectral, thermal, UAV), model family, evaluation practice and application.',
     body: [
-      'Most of the included work is single-region and single-modality. Models are usually validated on hold-out data from the same site, and explicit cross-region transfer is rare. The review sets out five gaps: regional bias, the lack of a fused multimodal representation, CNN weakness on small or fragmented patches, poor observation of intertidal and submerged zones, and little field validation, and it points toward multimodal models evaluated under explicit domain shift.',
+      'Most of the included work is single-region and single-modality. Models are usually validated on hold-out data from the same site, and explicit cross-region transfer is rare. The review sets out five gaps: regional bias, the lack of a fused multimodal representation, CNN weakness on small or fragmented patches, poor observation of intertidal and submerged zones, and little field validation. It points toward multimodal models evaluated under explicit domain shift.',
       'This is a literature review rather than a software project; no model is proposed or trained.',
     ],
     role:

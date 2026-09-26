@@ -24,14 +24,18 @@ describe('hero structures', () => {
     }
   });
 
-  it('project into the viewport', () => {
-    const s = structures.backbone;
-    for (let i = 0; i < POINT_COUNT; i++) {
-      const p = project([s.points[i * 3]!, s.points[i * 3 + 1]!, s.points[i * 3 + 2]!], 560, 520);
-      expect(p.x).toBeGreaterThan(0);
-      expect(p.x).toBeLessThan(560);
-      expect(p.y).toBeGreaterThan(0);
-      expect(p.y).toBeLessThan(520);
+  it('project inside the hero stage with a margin, cameras included', () => {
+    const margin = 16;
+    for (const id of STRUCTURE_IDS) {
+      const s = structures[id];
+      const coords = [...s.points, ...s.segments];
+      for (let i = 0; i < coords.length; i += 3) {
+        const p = project([coords[i]!, coords[i + 1]!, coords[i + 2]!], 560, 520);
+        expect(p.x, `${id} x`).toBeGreaterThan(margin);
+        expect(p.x, `${id} x`).toBeLessThan(560 - margin);
+        expect(p.y, `${id} y`).toBeGreaterThan(margin);
+        expect(p.y, `${id} y`).toBeLessThan(520 - margin);
+      }
     }
   });
 });

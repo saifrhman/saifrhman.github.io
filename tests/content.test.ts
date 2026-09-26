@@ -34,6 +34,16 @@ describe('research and publication status', () => {
     }
   });
 
+  it('publications agree with their research entry on status and venue', () => {
+    for (const p of publications) {
+      if (!p.research) continue;
+      const entry = research.find((r) => r.slug === p.research);
+      expect(entry, p.title).toBeDefined();
+      expect(p.status, p.title).toBe(entry!.status);
+      expect(p.venue, p.title).toEqual(entry!.venue);
+    }
+  });
+
   it('publications point at existing research entries', () => {
     const slugs = new Set(research.map((r) => r.slug));
     for (const p of publications) if (p.research) expect(slugs.has(p.research), p.title).toBe(true);

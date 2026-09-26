@@ -12,7 +12,7 @@ export const site = {
   affiliation: 'MSc Data Science & AI, University of Liverpool',
   location: 'Liverpool, United Kingdom',
   description:
-    'Saif Ur Rehman works on the reliability of learned systems: evidence and uncertainty in 3D/4D geometry models, reward misalignment between language-model agents, and geometry-aware curation of protein structure data. He also builds retrieval, data and evaluation systems.',
+    'Saif Ur Rehman, ML engineer and AI researcher: evidence and uncertainty in 3D/4D geometry models, reward misalignment between LLM agents, protein data.',
   url: 'https://saifrhman.github.io',
   locale: 'en_GB',
   ogImage: '/og.png',

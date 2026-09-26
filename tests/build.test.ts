@@ -43,7 +43,11 @@ describe.skipIf(!hasBuild)('production build', () => {
       expect(html).toMatch(/<html lang="en-GB"/);
       expect(html).toMatch(/<title>[^<]{5,}<\/title>/);
       expect(html).toMatch(/<meta name="description" content="[^"]{40,}"/);
-      expect(html).toMatch(/<link rel="canonical" href="https:\/\/saifrhman\.github\.io\//);
+      if (html.includes('<meta name="robots" content="noindex"')) {
+        expect(html).not.toMatch(/<link rel="canonical"/);
+      } else {
+        expect(html).toMatch(/<link rel="canonical" href="https:\/\/saifrhman\.github\.io\//);
+      }
       expect(html).toMatch(/<meta property="og:image" content="https:\/\/saifrhman\.github\.io\/og\.png"/);
     });
 

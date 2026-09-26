@@ -224,7 +224,7 @@ function scene(): Structure {
   const sigma: number[] = [];
 
   const cameras: { centre: Vec3; target: Vec3 }[] = [
-    { centre: [-2.3, 1.3, 1.6], target: [0, 0.3, 0] },
+    { centre: [-1.9, 1.3, 1.6], target: [0, 0.3, 0] },
     { centre: [-0.4, 1.5, 2.4], target: [0, 0.3, 0] },
     { centre: [1.6, 1.4, 2.0], target: [0, 0.3, 0] },
     { centre: [2.4, 1.2, 0.4], target: [0, 0.3, 0] },
@@ -301,7 +301,7 @@ function scene(): Structure {
       segments.push([corners[k]!, corners[(k + 1) % 4]!]);
     }
   }
-  fit(points, sigma, segments, 1.2);
+  fit(points, sigma, segments, 1.0);
   return pack('scene', points, sigma, segments);
 }
 

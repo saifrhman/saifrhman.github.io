@@ -6,8 +6,8 @@ import TechTag from '@/components/TechTag.astro';
 interface Props {
   project: ProjectEntry;
   headingLevel?: 2 | 3;
-  /** `feature`: figure beside text. `compact`: smaller figure, text-first. */
-  variant?: 'feature' | 'compact';
+  /** `feature`: full card. `summary`: problem, tags and links only (home page). */
+  variant?: 'feature' | 'summary';
 }
 
 const { project, headingLevel = 3, variant = 'feature' } = Astro.props;
@@ -17,17 +17,27 @@ const headingId = `project-${project.slug}`;
 ---
 
 <article class:list={['project-card', `is-${variant}`]} aria-labelledby={headingId} data-reveal>
-  <a class="figure" href={detailHref ?? project.repo} tabindex="-1" aria-hidden="true">
+  <div class="figure">
     <Figure kind={project.figure} />
-  </a>
+    <a class="figure-hit" href={detailHref ?? project.repo} tabindex="-1" aria-hidden="true"></a>
+  </div>
   <div class="text">
-    <p class="label meta">{project.domain} · {project.year}</p>
+    <p class="label meta">{project.domain}<span class="nowrap"> · {project.year}</span></p>
     <Heading id={headingId} class="title">
       {detailHref ? <a href={detailHref}>{project.title}</a> : project.title}
     </Heading>
     <p class="problem">{project.problem}</p>
-    <p class="description">{project.description}</p>
-    <p class="highlight"><span class="label">Detail</span>{project.highlight}</p>
+    {
+      variant === 'feature' && (
+        <>
+          <p class="description">{project.description}</p>
+          <p class="highlight">
+            <span class="label">Detail</span>
+            {project.highlight}
+          </p>
+        </>
+      )
+    }
     {project.note && <p class="note">{project.note}</p>}
     <TechTag tags={project.tags} label={`${project.title} technologies`} />
     <ul class="links" role="list">
@@ -73,18 +83,14 @@ const headingId = `project-${project.slug}`;
   }
 
   @media (min-width: 52rem) {
-    .is-feature {
+    .project-card {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      align-items: start;
-    }
-
-    .is-compact {
-      grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
       align-items: start;
     }
   }
 
   .figure {
+    position: relative;
     display: block;
     border: var(--border);
     border-radius: var(--radius-lg);
@@ -94,6 +100,11 @@ const headingId = `project-${project.slug}`;
       border-color var(--duration-base) var(--ease-out),
       box-shadow var(--duration-base) var(--ease-out),
       transform var(--duration-base) var(--ease-out);
+  }
+
+  .figure-hit {
+    position: absolute;
+    inset: 0;
   }
 
   .project-card:hover .figure {
@@ -106,10 +117,6 @@ const headingId = `project-${project.slug}`;
     .figure {
       max-width: 30rem;
     }
-
-    .is-compact .figure {
-      max-width: 18rem;
-    }
   }
 
   .text {
@@ -121,6 +128,10 @@ const headingId = `project-${project.slug}`;
 
   .meta {
     color: var(--color-ink-3);
+  }
+
+  .nowrap {
+    white-space: nowrap;
   }
 
   .title {

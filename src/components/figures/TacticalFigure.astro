@@ -26,9 +26,10 @@ const ball: [number, number] = [6, 4];
 
 function variant(seed: number, spread: number, flipY: boolean) {
   const rand = mulberry32(seed);
+  const clamp = (v: number, limit: number) => Math.max(-limit, Math.min(limit, v));
   const move = ([x, y]: [number, number]): [number, number] => [
-    x + gaussian(rand) * spread,
-    (flipY ? -y : y) + gaussian(rand) * spread,
+    clamp(x + gaussian(rand) * spread, 51),
+    clamp((flipY ? -y : y) + gaussian(rand) * spread, 33),
   ];
   return { home: home.map(move), away: away.map(move), ball: move(ball) };
 }
@@ -55,9 +56,9 @@ const smallW = 104;
   class="fig"
   viewBox={`0 0 ${W} ${H}`}
   role="img"
-  aria-label="Illustration: a query moment showing 22 players and the ball on a pitch, and three retrieved moments with similar or dissimilar player configurations, each marked with an analyst judgement: relevant, partly relevant, not relevant."
+  aria-label="Illustration of the planned system, with synthetic positions: a query moment showing 22 players and the ball on a pitch, and three retrieved moments with similar or dissimilar player configurations, each marked with an analyst judgement: relevant, partly relevant, not relevant."
 >
-  <text class="t-muted" x="24" y="28">query moment</text>
+  <text class="t-muted" x="24" y="28">query window</text>
   <rect class="f-surface s-rule thin" x="24" y="40" width="236" height={big.h}></rect>
   <line class="s-rule hair" x1={big.sx(0)} x2={big.sx(0)} y1="40" y2={40 + big.h}></line>
   <circle class="s-rule hair" cx={big.sx(0)} cy={big.sy(0)} r={(9.15 / 105) * 236}></circle>
@@ -67,11 +68,11 @@ const smallW = 104;
   {query.away.map(([x, y]) => <circle class="f-bg s-ink medium" cx={big.sx(x)} cy={big.sy(y)} r="3" />)}
   <circle class="f-accent" cx={big.sx(query.ball[0])} cy={big.sy(query.ball[1])} r="2.6"></circle>
 
-  <text class="t-muted" x="276" y="28">nearest moments</text>
+  <text class="t-muted" x="276" y="28">nearest (planned)</text>
   {
     results.map((r, i) => {
       const x0 = 276;
-      const y0 = 40 + i * 82;
+      const y0 = 40 + i * 88;
       const p = pitch(x0, y0, smallW);
       return (
         <g>
@@ -84,7 +85,7 @@ const smallW = 104;
             <circle class="f-bg s-ink thin" cx={p.sx(x)} cy={p.sy(y)} r="1.5" />
           ))}
           <circle class="f-accent" cx={p.sx(r.ball[0])} cy={p.sy(r.ball[1])} r="1.5" />
-          <text class={r.tone} x={x0} y={y0 + p.h + 12}>
+          <text class={r.tone} x={x0} y={y0 + p.h + 11}>
             {r.mark} {r.label}
           </text>
         </g>
@@ -92,5 +93,6 @@ const smallW = 104;
     })
   }
   <path class="s-muted thin dashed" d="M264 110 H 272"></path>
-  <text class="t-muted t-small" x="24" y={40 + big.h + 20}>analyst judgements re-rank the next results</text>
+  <text class="t-muted t-small" x="24" y={40 + big.h + 20}>planned: judgements re-rank later results</text>
+  <text class="t-muted t-small" x="24" y={40 + big.h + 34}>planned system · synthetic positions</text>
 </svg>

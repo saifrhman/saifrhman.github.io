@@ -14,6 +14,18 @@ const headingId = `${entry.slug}-title`;
 ---
 
 <article class="research-card" id={entry.slug} aria-labelledby={headingId} data-reveal>
+  <header class="head">
+    <h2 id={headingId} class="title">{entry.title}</h2>
+    {
+      entry.formalTitle && (
+        <p class="formal-title">
+          <span class="label">{entry.status === 'dissertation' ? 'Dissertation title' : 'Manuscript title'}</span>
+          {entry.formalTitle}
+        </p>
+      )
+    }
+  </header>
+
   <div class="aside">
     <p class="label index">{String(index + 1).padStart(2, '0')} · {entry.area}</p>
     <div class="figure">
@@ -56,7 +68,6 @@ const headingId = `${entry.slug}-title`;
   </div>
 
   <div class="content">
-    <h2 id={headingId} class="title">{entry.title}</h2>
     <p class="question"><span class="label">Question</span>{entry.question}</p>
     <div class="body prose">
       <p>{entry.summary}</p>
@@ -71,16 +82,18 @@ const headingId = `${entry.slug}-title`;
     </div>
 
     <div class="method-grid">
-      <section aria-labelledby={`${entry.slug}-methods`}>
-        <h3 id={`${entry.slug}-methods`} class="label">Approach</h3>
+      <div>
+        <h3 class="label">Approach</h3>
         <ul class="methods">
           {entry.methods.map((m) => <li>{m}</li>)}
         </ul>
-      </section>
-      <section aria-labelledby={`${entry.slug}-concepts`}>
-        <h3 id={`${entry.slug}-concepts`} class="label">Concepts</h3>
-        <p class="concepts">{entry.concepts.join(' · ')}</p>
-      </section>
+      </div>
+      <div>
+        <h3 class="label">Concepts</h3>
+        <ul class="concepts" role="list">
+          {entry.concepts.map((c) => <li>{c}</li>)}
+        </ul>
+      </div>
     </div>
 
     {
@@ -99,9 +112,22 @@ const headingId = `${entry.slug}-title`;
   .research-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'head' 'aside' 'content';
     gap: var(--space-6);
     padding-block: var(--space-8);
     border-top: var(--border);
+  }
+
+  .head {
+    grid-area: head;
+  }
+
+  .aside {
+    grid-area: aside;
+  }
+
+  .content {
+    grid-area: content;
   }
 
   .research-card:first-of-type {
@@ -111,8 +137,11 @@ const headingId = `${entry.slug}-title`;
 
   @media (min-width: 60rem) {
     .research-card {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-      gap: var(--space-8);
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-areas: 'aside head' 'aside content';
+      grid-template-rows: auto 1fr;
+      column-gap: var(--space-8);
+      row-gap: 0;
     }
 
     .aside {
@@ -141,7 +170,7 @@ const headingId = `${entry.slug}-title`;
 
   @media (max-width: 59.99rem) {
     .figure {
-      max-width: 26rem;
+      max-width: 30rem;
     }
   }
 
@@ -180,6 +209,31 @@ const headingId = `${entry.slug}-title`;
   .title {
     font-size: var(--text-2xl);
     margin-bottom: var(--space-5);
+  }
+
+  @media (max-width: 59.99rem) {
+    .head .title,
+    .head .formal-title {
+      margin-bottom: 0;
+    }
+
+    .head .formal-title {
+      margin-top: var(--space-3);
+    }
+  }
+
+  .formal-title {
+    margin: calc(-1 * var(--space-3)) 0 var(--space-5);
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--color-ink-2);
+    max-width: var(--measure-wide);
+  }
+
+  .formal-title .label {
+    display: block;
+    font-style: normal;
+    margin-bottom: var(--space-1);
   }
 
   .question {
@@ -241,9 +295,22 @@ const headingId = `${entry.slug}-title`;
   }
 
   .concepts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
     font-size: var(--text-sm);
     color: var(--color-ink-2);
     line-height: 1.7;
+  }
+
+  .concepts li {
+    white-space: nowrap;
+  }
+
+  .concepts li:not(:last-child)::after {
+    content: '·';
+    margin-left: var(--space-2);
+    color: var(--color-ink-3);
   }
 
   .evidence {

@@ -1,9 +1,9 @@
 ---
 /**
  * Hero figure. Renders the three structures as static SVG at build time so the
- * figure is complete without JavaScript, then (on wide screens, without
- * reduced motion or data saver) lazily upgrades to a three.js scene that
- * morphs between them. See src/scripts/hero-scene.ts.
+ * figure is complete without JavaScript, then (on wide screens with a fine
+ * pointer, without reduced motion or data saver) lazily upgrades to a three.js
+ * scene that morphs between them. See src/scripts/hero-scene.ts.
  */
 import {
   getStructures,
@@ -22,15 +22,15 @@ const structures = getStructures();
 const captions: Record<StructureId, { label: string; text: string }> = {
   backbone: {
     label: 'Backbone',
-    text: 'A protein C-alpha trace. Spread is widest in loops and termini, where per-residue confidence tends to be lowest.',
+    text: 'A protein Cα trace. Spread is widest in loops and termini, where per-residue confidence tends to be lowest.',
   },
   scene: {
     label: 'Scene',
     text: 'A small scene seen by four cameras. Spread grows on surfaces the cameras barely observe.',
   },
   agents: {
-    label: 'Agents',
-    text: 'Six agent trajectories in space-time, with time running upward. Spread grows with the prediction horizon.',
+    label: 'Motion',
+    text: 'Six moving objects traced through space-time, with time running upward. Spread grows with the prediction horizon.',
   },
 };
 
@@ -59,7 +59,7 @@ function render(id: StructureId) {
 
   // Points are drawn as zero-length round-capped strokes, bucketed by size so
   // each structure needs only a handful of path elements.
-  const halos = new Map<string, Layer>();
+  const halos: { x: number; y: number; r: number }[] = [];
   const cores = new Map<string, Layer>();
   const depths = projected.map((p) => p.depth).sort((a, b) => a - b);
   const midDepth = depths[Math.floor(depths.length / 2)]!;
@@ -67,18 +67,7 @@ function render(id: StructureId) {
     const accent = p.sigma > SIGMA_ACCENT;
     const tone = accent ? 'accent' : 'ink';
     if (accent) {
-      // Two soft rings per uncertain point approximate the WebGL falloff.
-      const haloR = Math.max(3, p.sigma * pixelsPerUnit(p.depth, H) * 1.5);
-      for (const [ring, factor] of [
-        ['outer', 1],
-        ['inner', 0.55],
-      ] as const) {
-        const w = Math.round(haloR * factor) * 2; // diameter in 2px steps, so points share a few paths
-        const key = `${ring}-${w}`;
-        const halo = halos.get(key) ?? { d: '', width: w, className: `halo ${ring}` };
-        halo.d += `M${r1(p.x)} ${r1(p.y)}h0`;
-        halos.set(key, halo);
-      }
+      halos.push({ x: r1(p.x), y: r1(p.y), r: r1(Math.max(4, p.sigma * pixelsPerUnit(p.depth, H) * 1.7)) });
     }
 
     const far = p.depth > midDepth;
@@ -87,7 +76,7 @@ function render(id: StructureId) {
     core.d += `M${r1(p.x)} ${r1(p.y)}h0`;
     cores.set(cKey, core);
   }
-  return { lines, halos: [...halos.values()], cores: [...cores.values()] };
+  return { lines, halos, cores: [...cores.values()] };
 }
 
 const rendered = STRUCTURE_IDS.map((id) => ({ id, ...render(id) }));
@@ -96,13 +85,20 @@ const initial: StructureId = 'backbone';
 
 <figure class="hero-figure" data-hero-figure data-active={initial}>
   <div class="stage">
-    <svg class="static" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="hero-figure-caption">
+    <svg class="static" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      <defs>
+        <radialGradient id="hero-halo">
+          <stop class="halo-stop" offset="0" stop-opacity="0.24"></stop>
+          <stop class="halo-stop" offset="0.5" stop-opacity="0.09"></stop>
+          <stop class="halo-stop" offset="1" stop-opacity="0"></stop>
+        </radialGradient>
+      </defs>
       {
         rendered.map((r) => (
           <g class="structure" data-structure={r.id}>
             <path class="lines" d={r.lines} />
-            {r.halos.map((l) => (
-              <path class={l.className} d={l.d} stroke-width={l.width} />
+            {r.halos.map((h) => (
+              <circle cx={h.x} cy={h.y} r={h.r} fill="url(#hero-halo)" />
             ))}
             {r.cores.map((l) => (
               <path class={l.className} d={l.d} stroke-width={l.width} />
@@ -112,25 +108,32 @@ const initial: StructureId = 'backbone';
       }
     </svg>
   </div>
+  <div class="switcher" role="group" aria-label="Structure shown in the figure" hidden>
+    {
+      STRUCTURE_IDS.map((id) => (
+        <button type="button" data-structure-button={id} aria-pressed={id === initial ? 'true' : 'false'}>
+          {captions[id].label}
+        </button>
+      ))
+    }
+  </div>
   <figcaption id="hero-figure-caption">
-    <div class="switcher" role="group" aria-label="Structure shown in the figure">
-      {
-        STRUCTURE_IDS.map((id) => (
-          <button type="button" data-structure-button={id} aria-pressed={id === initial ? 'true' : 'false'}>
-            {captions[id].label}
-          </button>
-        ))
-      }
-    </div>
     <p class="caption">
-      <span class="fig">Fig. 1</span>
-      {
-        STRUCTURE_IDS.map((id) => (
-          <span class="caption-text" data-caption={id} hidden={id !== initial}>
-            {captions[id].text}
-          </span>
-        ))
-      }
+      <span class="fig-label">Fig. 1</span>
+      <span class="caption-stack">
+        {
+          STRUCTURE_IDS.map((id) => (
+            <span
+              class="caption-text"
+              data-caption={id}
+              data-current={id === initial ? '' : undefined}
+              aria-hidden={id === initial ? undefined : 'true'}
+            >
+              {captions[id].text}
+            </span>
+          ))
+        }
+      </span>
       <span class="caption-note">Illustrative; accent marks the least certain points.</span>
     </p>
   </figcaption>
@@ -197,7 +200,6 @@ const initial: StructureId = 'backbone';
     stroke-linejoin: round;
   }
 
-  .halo,
   .core {
     fill: none;
     stroke-linecap: round;
@@ -211,16 +213,8 @@ const initial: StructureId = 'backbone';
     stroke: var(--color-accent);
   }
 
-  .halo {
-    stroke: var(--color-accent);
-  }
-
-  .halo.outer {
-    stroke-opacity: 0.07;
-  }
-
-  .halo.inner {
-    stroke-opacity: 0.09;
+  .halo-stop {
+    stop-color: var(--color-accent);
   }
 
   .core.far {
@@ -239,7 +233,11 @@ const initial: StructureId = 'backbone';
   .switcher {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
+    gap: var(--space-2);
+  }
+
+  .switcher[hidden] {
+    display: none;
   }
 
   .switcher button {
@@ -248,10 +246,10 @@ const initial: StructureId = 'backbone';
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     padding: 0.4rem 0.65rem;
-    border: 1px solid transparent;
+    border: 1px solid var(--color-rule);
     border-radius: 999px;
     background: transparent;
-    color: var(--color-ink-3);
+    color: var(--color-ink-2);
     transition:
       color var(--duration-fast) var(--ease-out),
       border-color var(--duration-fast) var(--ease-out);
@@ -259,21 +257,38 @@ const initial: StructureId = 'backbone';
 
   .switcher button:hover {
     color: var(--color-ink);
+    border-color: var(--color-ink-3);
   }
 
   .switcher button[aria-pressed='true'] {
-    color: var(--color-ink);
-    border-color: var(--color-rule-strong);
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-bg);
   }
 
   .caption {
     font-size: var(--text-sm);
     line-height: 1.5;
     color: var(--color-ink-2);
-    min-height: 4.5em;
   }
 
-  .fig {
+  /* All captions share one grid cell, so switching never changes the height. */
+  .caption-stack {
+    display: grid;
+  }
+
+  .caption-text {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+
+  .caption-text[data-current] {
+    visibility: visible;
+  }
+
+  .fig-label {
+    display: block;
+    margin-bottom: var(--space-1);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     letter-spacing: var(--tracking-label);

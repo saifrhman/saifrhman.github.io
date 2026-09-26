@@ -8,20 +8,19 @@ import { site } from '@/data/site';
 
 <BaseLayout
   title="Projects"
-  description="Selected ML engineering projects by Saif Ur Rehman: evidence-checked retrieval over the FIA F1 regulations, weakly supervised receipt extraction, a football data platform, tactical retrieval research and Bayesian optimisation."
+  description="ML engineering projects: evidence-checked RAG over the FIA F1 regulations, weakly supervised receipt extraction, a football data platform and more."
 >
   <div class="container page">
     <SectionHeading
       level={1}
-      eyebrow="Engineering"
       title="Selected projects"
-      description="A small selection, chosen for what was technically interesting rather than for coverage. Each card says what the repository shows, including what it does not show yet."
+      description="Chosen for what was technically interesting rather than for coverage. Unfinished parts are stated on each card."
     />
     <div class="list">
-      {projects.map((project) => <ProjectCard project={project} headingLevel={2} variant={project.featured ? 'feature' : 'compact'} />)}
+      {projects.map((project) => <ProjectCard project={project} headingLevel={2} />)}
     </div>
     <p class="more">
-      Other repositories, including coursework and early experiments, are on <a href={site.github} rel="noopener">GitHub</a>.
+      More repositories are on <a href={site.github} rel="noopener">GitHub</a>.
     </p>
   </div>
 </BaseLayout>

@@ -15,7 +15,7 @@ const barMax = 58;
   class="fig"
   viewBox={`0 0 ${W} ${H}`}
   role="img"
-  aria-label="Schematic: retrieved regulation passages ranked by similarity with a minimum-score cut; passages above it become labelled excerpts; the generated answer's citations, rule identifiers and numbers are checked against the cited excerpts, and an answer citing an invented article is declined."
+  aria-label="Schematic: retrieved regulation passages ranked by similarity, with a threshold below which passages are never sent to the model. Passages above it become labelled excerpts S1 to S4. An answer that cites excerpt S9, which was never supplied, and an article number (Z1.1) that is not in the evidence fails the checks and is declined."
 >
   <text class="t-muted" x="20" y="26">retrieved passages</text>
   {
@@ -38,27 +38,27 @@ const barMax = 58;
     })
   }
   <line class="s-accent thin dashed" x1="148" x2="148" y1="34" y2="258"></line>
-  <text class="t-accent t-small" x="152" y="268">min score</text>
+  <text class="t-accent t-small" x="152" y="268">threshold</text>
 
   <path class="s-rule thin" d="M204 58 C 224 58, 224 110, 244 110"></path>
   <path class="s-rule thin" d="M204 94 C 224 94, 224 118, 244 118"></path>
   <path class="s-rule thin" d="M204 130 C 224 130, 224 126, 244 126"></path>
 
   <text class="t-muted" x="248" y="26">answer + checks</text>
-  <rect class="f-surface s-ink thin" x="248" y="38" width="136" height="138" rx="4"></rect>
+  <rect class="f-surface s-ink thin" x="246" y="38" width="146" height="138" rx="4"></rect>
   <line class="s-muted thin" x1="258" x2="352" y1="56" y2="56"></line>
   <rect class="f-soft s-ink hair" x="354" y="50" width="22" height="12" rx="2"></rect>
   <text class="t-strong t-small" x="358" y="59">S1</text>
   <line class="s-muted thin" x1="258" x2="330" y1="76" y2="76"></line>
   <rect class="f-soft s-ink hair" x="332" y="70" width="22" height="12" rx="2"></rect>
   <text class="t-strong t-small" x="336" y="79">S3</text>
-  <line class="s-muted thin" x1="258" x2="340" y1="96" y2="96"></line>
-  <rect class="f-accent-soft s-accent hair" x="342" y="90" width="34" height="12" rx="2"></rect>
-  <text class="t-accent t-small" x="346" y="99">Z1.1</text>
+  <line class="s-muted thin" x1="258" x2="318" y1="96" y2="96"></line>
+  <rect class="f-accent-soft s-accent hair" x="320" y="90" width="56" height="12" rx="2"></rect>
+  <text class="t-accent t-small" x="324" y="99">Z1.1 [S9]</text>
 
-  <text class="t-small" x="258" y="124">✓ citations resolve</text>
-  <text class="t-small" x="258" y="140">✓ numbers in cited text</text>
-  <text class="t-accent t-small" x="258" y="156">✗ rule id not in evidence</text>
+  <text class="t-accent t-small" x="254" y="124">✗ S9 was never supplied</text>
+  <text class="t-small" x="254" y="140">✓ numbers in cited text</text>
+  <text class="t-accent t-small" x="254" y="156">✗ Z1.1 not in evidence</text>
 
   <path class="s-accent thin" d="M316 176 V 204"></path>
   <rect class="f-accent-soft s-accent thin" x="258" y="204" width="116" height="30" rx="4"></rect>

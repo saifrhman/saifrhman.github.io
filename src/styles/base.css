@@ -17,7 +17,8 @@ html {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  html {
+  /* Smooth only for in-page jumps, not when a page opens at a #fragment. */
+  html:focus-within {
     scroll-behavior: smooth;
   }
 
@@ -108,6 +109,13 @@ a {
   transition:
     color var(--duration-fast) var(--ease-out),
     text-decoration-color var(--duration-fast) var(--ease-out);
+}
+
+/* Links inside running text need a clearly visible underline. */
+main p a:not([class]),
+main li a:not([class]),
+main dd a:not([class]) {
+  text-decoration-color: var(--color-ink-3);
 }
 
 a:hover {
@@ -221,6 +229,7 @@ hr {
 
 .arrow-link::after {
   content: '→';
+  content: '→' / '';
   font-family: var(--font-sans);
   transition: transform var(--duration-base) var(--ease-out);
 }
@@ -235,24 +244,34 @@ hr {
 
 .arrow-link[data-external]::after {
   content: '↗';
+  content: '↗' / '';
 }
 
 .arrow-link[data-external]:hover::after {
   transform: translate(2px, -2px);
 }
 
-/* Section entrance. Only applied when JS has marked the document as able to
-   animate; content is always visible without JS or with reduced motion. */
-@media (prefers-reduced-motion: no-preference) {
-  :root.can-reveal [data-reveal] {
+/* Section entrance, driven by scroll position in CSS (no JavaScript). Content
+   is fully visible wherever scroll-driven animations are unsupported, with
+   reduced motion, and in print; elements already on screen or scrolled past
+   are shown in their final state. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
     opacity: 0;
-    transform: translateY(12px);
-    transition:
-      opacity var(--duration-slow) var(--ease-out),
-      transform var(--duration-slow) var(--ease-out);
+    transform: translateY(14px);
   }
 
-  :root.can-reveal [data-reveal].is-revealed {
+  to {
     opacity: 1;
     transform: none;
   }
@@ -278,11 +297,13 @@ hr {
 
   body {
     background: #fff;
-    color: #000;
   }
 
   [data-reveal] {
+    animation: none !important;
+  }
+
+  .hero-figure.is-webgl .static {
     opacity: 1 !important;
-    transform: none !important;
   }
 }

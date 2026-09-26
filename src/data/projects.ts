@@ -7,13 +7,15 @@ import type { ProjectEntry } from './types';
 export const projects: ProjectEntry[] = [
   {
     slug: 'f1-ai-copilot',
+    seoDescription: 'Retrieval-augmented QA over the 2026 FIA F1 regulations (592 pages) with Qdrant; citations, rule numbers and figures are checked after generation.',
     title: 'F1 AI Copilot',
     problem:
       'A language model answering from memory can state Formula 1 article numbers, limits and penalties that are not in the regulations, with the same fluency as ones that are.',
     description:
-      'Question answering over the six 2026 FIA F1 regulation documents (592 pages, 1,938 indexed passages). Retrieval, generation and indexing are kept apart so that chunking, retrieval depth and citation failures can each be inspected on their own: a retrieval-only endpoint shows what a question gets back, passages below the similarity threshold never reach the model, and the index records a fingerprint of everything that built it.',
+      'Question answering over the six 2026 FIA F1 regulation documents (592 pages, 1,938 indexed passages). Indexing, retrieval and generation are kept apart so that each kind of failure (chunking, retrieval depth, citation) can be inspected on its own. A retrieval-only endpoint shows what a question gets back, passages below the similarity threshold never reach the model, and the index records a fingerprint of everything that built it.',
+    cv: 'Question answering over the 2026 FIA F1 regulations (592 pages) that checks each answer’s citations, rule identifiers and numbers against the cited passages (inference-marked sentences are exempt from the number check) and declines when they do not match.',
     highlight:
-      'Grounding is checked after generation rather than only requested in the prompt. Citations must resolve to supplied excerpts, and the rule identifiers and numbers in an answer’s factual sentences must appear in the passages it cites, with numbers compared by value (“80 km/h” matches “80km/h”, “one hundred” matches 100). In two early evaluation runs a forged-excerpt injection led the model to cite “Article Z1.1 [S9]”; the answer was declined because S9 was never a supplied passage.',
+      'Grounding is checked after generation rather than only requested in the prompt. Citations must resolve to supplied excerpts, and the rule identifiers and numbers in an answer must appear in the passages it cites, with numbers compared by value (“80 km/h” matches “80km/h”, “one hundred” matches 100); sentences that open with an inference marker such as “so” or “therefore” are exempt from the number check. In two early evaluation runs, an adversarial test that injected a forged excerpt led the model to cite “Article Z1.1 [S9]”; the answer was declined because S9 was never a supplied passage.',
     tags: ['RAG', 'Qdrant', 'LangChain', 'FastAPI', 'Streamlit', 'pytest'],
     domain: 'Retrieval-augmented generation',
     year: '2026',
@@ -78,25 +80,25 @@ export const projects: ProjectEntry[] = [
         },
         {
           title: 'Validate after generation',
-          body: 'Prompt instructions reduce unsupported citations but do not prevent them. The validator first rejects citations to excerpts that were never supplied, then checks rule identifiers (accepting a parent of a cited rule, B2.3 for B2.3.5, but not invented sub-rules), requires factual statements to carry a citation, and compares numbers as values, including spelled-out numbers and currency amounts. Page and issue references are checked against the passage’s own metadata.',
+          body: 'Prompt instructions reduce unsupported citations but do not prevent them. The validator first rejects citations to excerpts that were never supplied, then checks rule identifiers (accepting a parent of a cited rule, B2.3 for B2.3.5, but not invented sub-rules), requires factual statements to carry a citation (sentences that open with an inference marker are exempt from this and from the number check), and compares numbers as values, including spelled-out numbers and currency amounts. Page and issue references are checked against the passage’s own metadata.',
         },
         {
           title: 'Add definitions rather than more context',
           body: 'One evaluation question failed because the rule said “during a TTCS”, and only Appendix B1 says that a TTCS includes the race. Instead of retrieving more passages, indexing extracts verbatim definitions and adds the relevant ones as citable excerpts, skipping abbreviations so common that they add nothing (“FIA” appears in 41% of chunks).',
         },
         {
-          title: 'Keep the threshold conservative',
-          body: 'A calibration mode sweeps the similarity threshold using cached embeddings, without calling the chat model. A higher threshold would have declined one more unanswerable question before generation, but on an eight-question sample it sat 0.004 from the weakest answerable one, so the default stayed at 0.30.',
+          title: 'Leave the threshold at 0.30',
+          body: 'A calibration mode sweeps the similarity threshold using cached embeddings, without calling the chat model. A higher threshold would have declined one more unanswerable question before generation, but on an eight-question sample it was within 0.004 of the score of the weakest answerable question, so the default stayed at 0.30.',
         },
       ],
       evaluation: [
-        'A 15-question set covers answerable, paraphrased, cross-document, unanswerable and adversarial questions, plus one question about DRS left for human review. A question passes only if the cited sections match and the expected facts appear both in the answer and in the cited text. With free-tier Nemotron embedding and chat models through OpenRouter, the fourth evaluation run passed all 14 scored questions; a later run exposed a validator gap, which was fixed before the saved outputs were re-scored. For each answerable question, the top-ranked passage came from the page containing the answer.',
+        'A 15-question set covers answerable, paraphrased, cross-document, unanswerable and adversarial questions, plus one question about DRS left for human review. A question passes only if the cited sections match and the expected facts appear both in the answer and in the cited text. With free-tier Nemotron embedding and chat models through OpenRouter, five evaluation runs passed 12, 13, 13, 14 and 13 of the 14 scored questions; run 4’s 14 came after two scoring fixes that were not answer errors (the fact matcher missed a non-breaking hyphen, and the validator did not yet accept a trailing sources block). The fifth run’s failure was a validator gap rather than a wrong answer: an inference marker inside parentheses was not recognised. After that fix the saved outputs of all five runs were re-validated; the fifth run then passed all 14 and no earlier verdict changed. For each answerable question, the top-ranked passage came from the page containing the answer.',
         'These are development-set numbers, not a benchmark. The same 15 questions guided the retrieval depth, the prompt, the glossary, the threshold and the validator, so they are not an unbiased estimate; there is no baseline system, and the run results are reported in the repository documentation rather than committed as artefacts. Separately, 1,442 tests pass in CI on Python 3.11 and 3.12. The 239 RAG tests use generated PDFs, real parsing, the real text splitter and an embedded Qdrant, with only the embedding and chat services stubbed.',
       ],
       limitations: [
         'Single-query dense retrieval can miss one side of a comparative question; there is no hybrid search or re-ranking.',
         'The deterministic checks show that citations, rule numbers and figures are traceable, not that each sentence is entailed by its passage. The optional verifier that targets this is off by default and has been tested on one planted sentence.',
-        'Sentences that open with an inference marker (“so”, “therefore”, “in summary”) are exempt from the number and citation checks, which leaves a gap an unsupported claim can pass through.',
+        'Sentences that open with an inference marker (“so”, “therefore”, “in summary”) are exempt from the number check and from the requirement to carry a citation, which leaves a gap an unsupported claim can pass through.',
         'PDF extraction flattens tables and leaves occasional split words.',
         'The similarity threshold is specific to the embedding model it was calibrated on.',
         'The strategy, setup and telemetry modules are heuristics and have not been validated on real race data.',
@@ -113,11 +115,13 @@ export const projects: ProjectEntry[] = [
   },
   {
     slug: 'receipt-extraction',
+    seoDescription: 'Receipt field extraction combining EasyOCR, a rule parser and LayoutLMv3, with SROIE and rule-derived pseudo-labels weighted by source.',
     title: 'Hybrid receipt extraction',
     problem:
-      'Receipt datasets label a handful of fields, a useful schema needs many more, and a model trained on rule output inherits the rules’ mistakes.',
+      'Receipt datasets label only a handful of fields, and a useful schema needs many more. Rules can fill the gap, but a model trained on rule output inherits the rules’ mistakes.',
     description:
-      'EasyOCR, a rule parser and a LayoutLMv3 token-classification pipeline behind one entrypoint, in three modes: rules only, model only and hybrid. SROIE annotates only company, address, date and total, so the other 13 entity types are pseudo-labelled by the rule parser and weighted by source before fine-tuning, and the two extractors are merged field by field at inference.',
+      'A single entry point combines EasyOCR, a rule parser and a LayoutLMv3 token classifier, and runs in three modes: rules only, model only or hybrid. SROIE annotates only company, address, date and total, so the rule parser pseudo-labels the other 13 entity types, weighted by source, before fine-tuning; at inference the two extractors are merged field by field.',
+    cv: 'Receipt field extraction combining EasyOCR, a rule parser and LayoutLMv3 trained on source-weighted weak labels; no evaluation results committed yet.',
     highlight:
       'Labels are weighted by where they came from. Tokens aligned to SROIE’s four annotated fields carry weight 1.0; tokens labelled by the rule parser carry 0.76 to 0.86, depending on entity type. The weights scale each token’s loss, so rule-derived labels pull on the model less than annotated ones without being discarded.',
     tags: ['LayoutLMv3', 'EasyOCR', 'weak supervision', 'PyTorch', 'Transformers'],
@@ -129,7 +133,7 @@ export const projects: ProjectEntry[] = [
     note: 'Methods and tooling; no evaluation results are committed yet.',
     detail: {
       problem: [
-        'Extracting structured fields from receipt photos is hard for two separate reasons. OCR is noisy and layouts vary by merchant, and the labels are thin: SROIE (626 training and 347 test receipts) annotates four fields per receipt, while a useful schema covers vendor, invoice metadata, line items, tax, totals and payment.',
+        'Extracting structured fields from receipt photos is hard for two separate reasons. The input is messy: OCR is noisy and layouts vary by merchant. And the labels are thin: SROIE (626 training and 347 test receipts) annotates four fields per receipt, while a useful schema covers vendor, invoice metadata, line items, tax, totals and payment.',
         'Rules can fill in the missing fields but are brittle, and a model trained on rule output learns the rules’ errors along with their coverage. The project treats that as a weak-supervision problem.',
       ],
       system: [
@@ -203,11 +207,13 @@ export const projects: ProjectEntry[] = [
   },
   {
     slug: 'football-data-platform',
+    seoDescription: 'StatsBomb open data to BigQuery: a bronze/silver/gold pipeline with dbt models and 23 schema tests, served via FastAPI and a Streamlit dashboard.',
     title: 'Football intelligence platform',
     problem:
       'StatsBomb’s open event data is deeply nested, match-scoped JSON; analysis needs typed, tested tables that can be traced back to the source.',
     description:
-      'A bronze, silver and gold pipeline from StatsBomb Open Data to BigQuery. Python ingestion writes raw JSON records to partitioned bronze paths, a normaliser produces nine typed silver tables, and dbt builds five dimensions and four facts covered by 23 schema tests, served through FastAPI and a Streamlit dashboard. It has been run end to end on a bounded five-match sample.',
+      'A layered (bronze, silver, gold) pipeline from StatsBomb Open Data to BigQuery. Python ingestion writes raw JSON to partitioned bronze paths, a normaliser produces nine typed silver tables, and dbt builds five dimensions and four facts covered by 23 schema tests. FastAPI and a Streamlit dashboard serve the results. It has been run end to end on a bounded five-match sample.',
+    cv: 'Bronze/silver/gold pipeline from StatsBomb Open Data to BigQuery with dbt models, 23 schema tests and a FastAPI/Streamlit serving layer; run end to end on a five-match sample.',
     highlight:
       'User filters reach BigQuery only as named query parameters. Dataset and table names cannot be parameterised, so the API and the dashboard both check them against a strict identifier pattern before use, and unit tests cover both behaviours.',
     tags: ['BigQuery', 'dbt', 'Python', 'FastAPI', 'Streamlit', 'GitHub Actions'],
@@ -262,7 +268,7 @@ export const projects: ProjectEntry[] = [
         },
         {
           title: 'Explicit schemas at the warehouse boundary',
-          body: 'Silver tables load with declared types and required keys. A malformed field fails the load instead of silently becoming a string column that breaks a model three steps later.',
+          body: 'Silver tables load with declared types and required keys, so a type mismatch fails the load instead of silently becoming a string column that breaks a model three steps later. A missing optional field still loads as null.',
         },
         {
           title: 'Parameterised queries only',
@@ -274,10 +280,11 @@ export const projects: ProjectEntry[] = [
         },
       ],
       evaluation: [
-        '39 unit tests, ruff and dbt parse run in GitHub Actions, and recent runs pass. The 23 dbt tests passed against BigQuery on the five-match sample (Premier League 2003/04, about 17,000 events).',
+        'GitHub Actions runs 39 unit tests, ruff and dbt parse, and recent runs pass. The 23 dbt tests passed against BigQuery on the five-match sample (Premier League 2003/04, about 17,000 events).',
       ],
       limitations: [
         'Only a five-match sample has been processed so far.',
+        'In the sample run, dim_matches.competition_id and season_id are null for all five matches: the normaliser reads them from the top level of each match record, where StatsBomb nests them, and no schema test covers those columns.',
         'Most gold models are thin pass-throughs; the modelling work happens in the Python normaliser.',
         'xG values are StatsBomb’s own; no xG model was trained.',
         'Airflow, Terraform and Docker Compose are included as scaffolding only, and CI parses the dbt project rather than running its tests against a warehouse.',
@@ -288,9 +295,10 @@ export const projects: ProjectEntry[] = [
     slug: 'tacticlens',
     title: 'TacticLens',
     problem:
-      'Analysts looking for how an opponent behaves in situations like a given one search video by hand, using event tags that describe what happened rather than where the players were.',
+      'To see how an opponent behaves in situations like a given one, analysts search video by hand, using event tags that record what happened rather than where the players were.',
     description:
-      'A research programme on structural retrieval over football tracking data. The aim is to find passages of play whose multi-player movement over a short window resembles a chosen one, and to let an analyst’s relevance judgements re-rank the results. The public repository holds the research design (questions, hypotheses, baselines and rejection criteria written down in advance) and the data foundations built so far. The retrieval model, vector index and feedback loop are specified but not yet built.',
+      'A research project on structural retrieval over football tracking data. The aim is to find passages of play whose multi-player movement over a short window resembles a chosen one, and to let an analyst’s relevance judgements re-rank the results. The public repository holds the research design (questions, hypotheses, baselines and rejection criteria written down in advance) and the data foundations built so far. The retrieval model, vector index and feedback loop are specified but not yet built.',
+    cv: 'Research design and data foundations for structural retrieval over football tracking data; retrieval model not yet built.',
     highlight:
       'Absence is typed rather than null. Each player observation carries one of seven statuses (observed, estimated, interpolated, off-camera, provider-missing, unobserved, not applicable), and each status either requires or forbids coordinates, so that later robustness work can tell an off-camera player from a provider gap. Changing ends is a 180-degree rotation rather than a mirror, and coordinates are never clipped, because positional noise is itself something to study.',
     tags: ['tracking data', 'research design', 'Pydantic', 'FastAPI', 'object storage'],
@@ -307,8 +315,9 @@ export const projects: ProjectEntry[] = [
     problem: 'With a fixed budget of expensive evaluations, which configuration should be tried next?',
     description:
       'A propose, evaluate and update loop that tunes four random-forest hyperparameters with a Gaussian-process surrogate and Expected Improvement in BoTorch, compared with random search at the same budget of 33 evaluations, each scored by 5-fold cross-validation.',
+    cv: 'Gaussian-process Bayesian optimisation in BoTorch compared with random search for random-forest tuning (33 evaluations, single seed).',
     highlight:
-      'Both methods start from the same eight random configurations, so the curves separate only after BO’s first proposal. In the committed run, BO’s first proposal already matched random search’s final best, it moved ahead after 11 evaluations and then plateaued. With one seed and a margin of about 0.005 in accuracy, that is illustrative rather than conclusive.',
+      'Both methods start from the same eight random configurations, so the curves separate only after BO’s first proposal. In the committed run, that first proposal already matched random search’s final best; BO moved ahead at evaluation 11, improved again at evaluation 14 and then plateaued. With one seed and a margin of about 0.005 in accuracy, that is illustrative rather than conclusive.',
     tags: ['BoTorch', 'GPyTorch', 'Gaussian processes', 'scikit-learn'],
     domain: 'Probabilistic ML',
     year: '2026',

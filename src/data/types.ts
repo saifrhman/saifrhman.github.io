@@ -64,6 +64,8 @@ export interface ImageRef {
 export interface ResearchEntry {
   slug: string;
   title: string;
+  /** The formal dissertation or manuscript title, when it differs from `title`. */
+  formalTitle?: string;
   shortTitle: string;
   area: string;
   status: Status;
@@ -109,6 +111,10 @@ export interface ProjectEntry {
   problem: string;
   /** Concise description of what was built. */
   description: string;
+  /** One line for the CV, including any caveat a reader needs. */
+  cv: string;
+  /** Meta description for the detail page, ideally under 160 characters. */
+  seoDescription?: string;
   /** The single most interesting methodological detail. */
   highlight: string;
   tags: string[];

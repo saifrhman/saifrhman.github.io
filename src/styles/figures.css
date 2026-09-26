@@ -3,117 +3,125 @@
   classes only, so they follow the theme and read as one family.
 */
 
-.fig {
+svg.fig {
   display: block;
   width: 100%;
   height: auto;
   color: var(--color-figure-ink);
 }
 
-.fig text {
+svg.fig text {
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.02em;
   fill: var(--color-ink-2);
 }
 
-.fig .t-strong {
+svg.fig .t-strong {
   fill: var(--color-ink);
   font-weight: 500;
 }
 
-.fig .t-muted {
+svg.fig .t-muted {
   fill: var(--color-ink-3);
 }
 
-.fig .t-accent {
+svg.fig .t-accent {
   fill: var(--color-accent);
 }
 
-.fig .t-small {
-  font-size: 8px;
+svg.fig .t-small {
+  font-size: 9.5px;
 }
 
-.fig .t-serif {
+svg.fig .t-serif {
   font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0;
 }
 
-.fig .s-ink {
+svg.fig .s-ink {
   stroke: var(--color-figure-ink);
   fill: none;
 }
 
-.fig .s-muted {
+svg.fig .s-muted {
   stroke: var(--color-figure-muted);
   fill: none;
 }
 
-.fig .s-rule {
+svg.fig .s-rule {
   stroke: var(--color-rule-strong);
   fill: none;
 }
 
-.fig .s-accent {
+svg.fig .s-accent {
   stroke: var(--color-accent);
   fill: none;
 }
 
-.fig .f-ink {
+svg.fig .f-ink {
   fill: var(--color-figure-ink);
 }
 
-.fig .f-muted {
+svg.fig .f-muted {
   fill: var(--color-figure-muted);
 }
 
-.fig .f-accent {
+svg.fig .f-accent {
   fill: var(--color-accent);
 }
 
-.fig .f-surface {
+svg.fig .f-surface {
   fill: var(--color-surface);
 }
 
-.fig .f-bg {
+svg.fig .f-bg {
   fill: var(--color-bg);
 }
 
-.fig .f-soft {
+svg.fig .f-soft {
   fill: var(--color-surface-2);
 }
 
-.fig .f-accent-soft {
+svg.fig .f-accent-soft {
   fill: var(--color-accent-soft);
 }
 
-.fig .dashed {
+svg.fig .dashed {
   stroke-dasharray: 3 3;
 }
 
-.fig .dotted {
+svg.fig .dotted {
   stroke-dasharray: 1 2.5;
   stroke-linecap: round;
 }
 
-.fig .hair {
+svg.fig .hair {
   stroke-width: 0.75;
 }
 
-.fig .thin {
+svg.fig .thin {
   stroke-width: 1;
 }
 
-.fig .medium {
+svg.fig .medium {
   stroke-width: 1.5;
 }
 
-.fig .thick {
+svg.fig .thick {
   stroke-width: 2.25;
 }
 
-.fig .round {
+svg.fig .round {
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* Unlabelled regions that still need to be seen (WCAG 1.4.11). */
+svg.fig .f-soft-key {
+  fill: var(--color-surface-2);
+  stroke: var(--color-figure-muted);
+  stroke-width: 0.9;
+  stroke-dasharray: 2 1.5;
 }

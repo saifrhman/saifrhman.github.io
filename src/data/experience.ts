@@ -41,21 +41,21 @@ export const experience: ExperienceEntry[] = [
     location: 'Islamabad',
     start: 'Jan 2024',
     end: 'Apr 2024',
-    summary: 'Python scripts for data analysis and data cleaning, supporting the analytics team.',
+    summary: 'Wrote Python scripts for data analysis and data cleaning for the analytics team.',
   },
   {
     role: 'Senior Cloud Engineer',
     organisation: 'Tier3tech',
     start: 'Feb 2022',
     end: 'Nov 2022',
-    summary: 'Cloud security and Azure virtual desktop infrastructure; mentored team members.',
+    summary: 'Worked on cloud security and Azure Virtual Desktop infrastructure; mentored team members.',
   },
   {
     role: 'Level 2 Support Team Lead',
     organisation: 'MiGo Innovations',
     start: 'Nov 2020',
     end: 'Feb 2022',
-    summary: 'Led a team running network operations for offshore clients in the US.',
+    summary: 'Led a team running offshore network operations for US clients.',
   },
 ];
 
