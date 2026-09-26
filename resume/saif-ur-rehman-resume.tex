@@ -1,0 +1,173 @@
+% Résumé of Saif Ur Rehman. Build with `npm run resume` (resume/build.sh).
+% Keep every claim in line with src/data/: statuses, numbers and roles must
+% match what the site says.
+\documentclass[10pt]{article}
+\input{resume-style}
+
+\begin{document}
+
+{\centering
+{\LARGE\scshape Saif Ur Rehman}\par\vspace{0.6ex}
+{\small Liverpool, UK \enspace\textbullet\enspace
+\href{mailto:saif10urrehman@gmail.com}{saif10urrehman@gmail.com} \enspace\textbullet\enspace
+\href{https://www.linkedin.com/in/saifurrhmn/}{linkedin.com/in/saifurrhmn} \enspace\textbullet\enspace
+\href{https://github.com/saifrhman}{github.com/saifrhman} \enspace\textbullet\enspace
+\href{https://saifrhman.github.io}{saifrhman.github.io}}\par}
+
+\vspace{1.2ex}
+MSc Data Science and AI candidate, University of Liverpool. Research on geometry-aware curation of protein training
+data (dissertation), evidence use in feed-forward 4D reconstruction (first-author manuscript in development) and
+peer-reward misalignment in multi-agent LLMs (workshop submission, under review). Builds and evaluates ML systems in
+Python and PyTorch; applied AI intern at Rofsix, after systems, cloud and support engineering roles (2020--2025).
+
+\section{Education}
+\entry{MSc Data Science and Artificial Intelligence, University of Liverpool}{Sep 2025 -- 2026}{}{}
+Dissertation: \emph{Beyond AlphaFold: Filling the Blind Spots in Protein Structure Prediction}, supervised by
+Dr Olga Anosova. Modules include Machine Learning and Bio-inspired Optimisation, Computational Intelligence and
+Applied AI.
+\gap
+\entry{BE Electrical (Telecommunication) Engineering, NUST, Pakistan}{2016 -- 2021}{}{}
+
+\section{Research experience}
+\entry{Beyond AlphaFold / PDBClean: Geometry-Aware Curation of Protein Structure Training Data}{2026}
+  {MSc dissertation, sole author \textbullet\ Python, PyTorch, OpenFold, MMseqs2, gemmi, Slurm}
+  {\href{https://github.com/saifrhman/702_BeyondAF}{github.com/saifrhman/702\_BeyondAF}}
+\begin{itemize}
+  \item Re-implemented and scaled the published Backbone Rigid Invariant (BRI) curation protocol as PDBClean, a
+    configuration-driven pipeline over a fixed PDB snapshot (1 Jan 2026). A full re-run reproduced its output exactly.
+  \item Implemented Elkin and Kurlin's (2023) compressed cover tree for exact $L_\infty$ search, behind a length
+    partition and a lossless lower-bound prefilter.
+  \item Removed 78,754 geometric near-duplicates ($\le 0.010$\,\AA) from 578,524 eligible chains, keeping 499,770.
+    The cover tree's output matched an exhaustive check of all 3.53M candidate pairs, pair for pair.
+  \item Found the geometric and sequence criteria nearly nested: 99.5\% of geometric removals are sequence-identical
+    to their representative (MMseqs2 on the same population).
+  \item Prepared OpenFold inputs with fresh MSAs for a 142,056-chain, one-per-sequence set. From-scratch retraining
+    under Slurm is in progress, with no accuracy results yet; the training scripts were adapted from a predecessor project.
+\end{itemize}
+\gap
+\entry{Separating Solvers and Evaluators Is Not Enough: Peer-Reward Misalignment in Multi-Agent LLMs}{2026}
+  {Co-author, four-person team \textbullet\ submitted to a NeurIPS 2026 workshop, under review}{}
+\begin{itemize}
+  \item Two LoRA policies on a shared frozen 7--9B base each solve a task and grade the other's answer. In most
+    matched pairs, rewarding the peer's grade instead of the task metric lowered external task performance.
+  \item Wrote the single-agent RL training loop (REINFORCE with a moving-average baseline) that the two-agent trainer
+    builds on, and produced the single-agent replication figure.
+  \item Follow-up: audited how policy-gradient credit reaches the grading tokens; designed a reward-topology
+    comparison (objective reward, frozen judge, four-agent cycle, reciprocal pairs), not yet run.
+\end{itemize}
+\gap
+\entry{Geometric Evidence Utilization in Feed-Forward 4D Reconstruction (working title)}{2026 -- present}
+  {First-author manuscript in development \textbullet\ research in progress \textbullet\ Target: CVPR 2027}{}
+\begin{itemize}
+  \item Asks whether feed-forward 4D reconstruction models use stronger geometric conditioning to estimate a
+    physical quantity correctly, or fall back on a learned prior where the input does not determine it.
+  \item Built a synthetic benchmark with an exact ambiguity endpoint (physically different worlds render
+    byte-identical video) and a classical reference estimator. A ground-truth camera-pose intervention on Any4D and
+    4RC is in progress; no findings yet.
+  \item Designing KINETIC, which represents dynamic scenes as independently transforming kinematic components with a
+    separate global gauge. One transformation family and 20 test scenes are held out from all development.
+\end{itemize}
+\gap
+\entry{Geographical Data and Computational Tools for Determining Restoration Priorities in Mangrove Ecosystems: A Scoping Review}{2025 -- 2026}
+  {Co-author, five-person team \textbullet\ manuscript in preparation \textbullet\ began as MSc group coursework}{}
+PRISMA-ScR review of 24 included studies. Restructured the manuscript and drafted large parts of the data-source,
+sensing-modality, methods and future-work sections.
+
+\section{Experience}
+\entry{Applied AI Intern, Rofsix (UK)}{2026 -- present}{}{}
+\begin{itemize}
+  \item Developing a real-time system that detects and redacts confidential information during screen sharing,
+    combining OCR, transformer-based NER and image processing. Built and evaluated inference components with ONNX,
+    OpenVINO and PaddleOCR, and profiled the pipeline for low-latency CPU execution.
+\end{itemize}
+\gap
+\entry{Senior Systems Engineer, RoshTech}{Nov 2022 -- Sep 2025}{}{}
+\begin{itemize}
+  \item Built threat-detection and anomaly-analysis workflows over MongoDB, Graylog and the Elastic Stack to support
+    incident investigation for enterprise clients.
+\end{itemize}
+\gap
+\entry{Data Science Intern (part-time), Creative Tech Solutions (Islamabad)}{Jan 2024 -- Apr 2024}{}{}
+\begin{itemize}
+  \item Wrote Python scripts for data analysis and data cleaning for the analytics team.
+\end{itemize}
+\gap
+\entry{Earlier roles}{2020 -- 2022}
+  {Senior Cloud Engineer, Tier3tech (Feb 2022 -- Nov 2022) \textbullet\ Level 2 Support Team Lead, MiGo Innovations (Nov 2020 -- Feb 2022)}{}
+
+\section{Selected projects}
+\project{F1 AI Copilot: Retrieval-Augmented QA over the FIA Regulations}{github.com/saifrhman/f1-ai-copilot}
+  {https://github.com/saifrhman/f1-ai-copilot}{Python \textbullet\ LangChain \textbullet\ Qdrant \textbullet\ FastAPI \textbullet\ Streamlit \textbullet\ pytest}
+\begin{itemize}
+  \item Question answering over the 2026 FIA F1 regulations (592 pages). A deterministic validator declines any
+    answer whose citations, rule identifiers or figures are not in the passages it cites (sentences marked as
+    inferences are exempt from the number check). The index fingerprints its build inputs; 1,442 tests run in CI.
+\end{itemize}
+\gap
+\project{Chest X-ray Classification (group coursework)}{COMP534 Applied AI, University of Liverpool}{}
+  {PyTorch \textbullet\ EfficientNet-B3 \textbullet\ Swin V2-S \textbullet\ MaxViT-T \textbullet\ stratified 5-fold CV}
+\begin{itemize}
+  \item Team of four; 3,475 course-provided chest X-rays (Normal, Opacity, viral Pneumonia). Compared a custom
+    116,931-parameter CNN with EfficientNet-B3, Swin V2-S and MaxViT-T, each from scratch, frozen and fine-tuned.
+  \item From scratch Swin V2-S failed to train (CV macro-F1 0.29); fine-tuned it scored highest (0.953) and reached
+    test macro-F1 0.948, Cohen's $\kappa$ 0.92 on 695 held-out images. Single run, not clinically validated; the
+    Pneumonia class likely differs from the others in patient age and image source.
+\end{itemize}
+\gap
+\project{Hybrid Receipt Extraction: OCR, Rules and LayoutLMv3}{github.com/saifrhman/noise-robust-ocr-pipeline}
+  {https://github.com/saifrhman/noise-robust-ocr-pipeline}{EasyOCR \textbullet\ LayoutLMv3 \textbullet\ PyTorch \textbullet\ Transformers \textbullet\ weak supervision}
+\begin{itemize}
+  \item EasyOCR, a rule parser and a LayoutLMv3 token classifier, merged field by field. SROIE labels only 4 fields,
+    so rule-derived pseudo-labels for 13 more entity types are down-weighted (0.76--0.86 against 1.0) in the token
+    loss. No evaluation results have been committed yet.
+\end{itemize}
+\gap
+\project{Football Intelligence Platform}{github.com/saifrhman/football-analytics-platform}
+  {https://github.com/saifrhman/football-analytics-platform}{Python \textbullet\ BigQuery \textbullet\ dbt \textbullet\ FastAPI \textbullet\ Streamlit \textbullet\ GitHub Actions}
+\begin{itemize}
+  \item Pipeline from StatsBomb Open Data to BigQuery: bronze raw JSON, nine typed silver tables with explicit
+    schemas, and dbt gold models (5 dimensions, 4 facts, 23 schema tests), served through FastAPI and Streamlit. Run
+    end to end on a five-match sample; CI runs 39 unit tests, ruff and dbt parse.
+\end{itemize}
+\gap
+\project{TacticLens: Structural Retrieval over Football Tracking Data}{github.com/saifrhman/tacticlens}
+  {https://github.com/saifrhman/tacticlens}{Research design and foundation code \textbullet\ Python \textbullet\ Pydantic \textbullet\ FastAPI}
+\begin{itemize}
+  \item Research design (questions, baselines and rejection criteria fixed in advance) for retrieving passages of
+    play with similar multi-player movement, and a tracking data model with seven typed observation statuses. The
+    retrieval model, index and feedback loop are not yet built.
+\end{itemize}
+\gap
+\project{Sample-Efficient Learning: Active Learning and Bayesian Optimisation}{}{}
+  {scikit-learn \textbullet\ BoTorch \textbullet\ GPyTorch \textbullet\
+  \href{https://github.com/saifrhman/active-learning-classification}{active-learning-classification} \textbullet\
+  \href{https://github.com/saifrhman/closed-loop-hpo-botorch}{closed-loop-hpo-botorch}}
+\begin{itemize}
+  \item Entropy-based active learning reached 0.986 test accuracy after 60 labels, against 70 for random acquisition.
+    GP Bayesian optimisation (Expected Improvement) reached best 5-fold CV accuracy 0.961 against 0.956 for random
+    search in 33 random-forest tuning evaluations. Single seed each.
+\end{itemize}
+
+\section{Competitive programming and hackathons}
+\skill{ICPC 2025}{University of Liverpool team ``Baby Harp Seal'': NWERC 2025, 107th; ICPC UK \& Ireland
+  Programming Contest 2025, 50th overall and 1st at the University of Liverpool site.}
+\skill{Hackathons}{Liverpool Computer Society Hackathon, 1st place (team), deep-learning solution; Ultamation
+  Hackathon, 2nd place, constraint-satisfaction scheduling.}
+
+\section{Skills and certifications}
+\skill{Languages}{Python, C++, SQL, Bash, R}
+\skill{LLMs and RL fine-tuning}{LoRA/QLoRA, REINFORCE, multi-agent LLM training with peer-graded rewards,
+  LLM-as-judge rewards, retrieval-augmented generation (LangChain, Qdrant), Hugging Face Transformers}
+\skill{ML training and evaluation}{PyTorch, transfer learning (EfficientNet, Swin V2, MaxViT), Slurm GPU training
+  and checkpointing (OpenFold), large-scale dataset curation and deduplication, cross-validation, error analysis,
+  active learning, Bayesian optimisation (BoTorch, GPyTorch)}
+\skill{Geometry, vision and science}{3D/4D reconstruction models, protein structure data (OpenFold, MMseqs2,
+  gemmi, Mol*), exact metric search (cover trees, k-d trees), LayoutLMv3, EasyOCR, PaddleOCR, OpenCV, YOLOv8, U-Net}
+\skill{Systems and data}{HPC clusters (Slurm), OpenMP, ONNX, OpenVINO, FastAPI, Streamlit, BigQuery, dbt,
+  PostgreSQL, MongoDB, Elastic Stack, Azure, Docker, Git, GitHub Actions, Linux}
+
+\skill{Certifications}{Fundamentals of Accelerated Computing with Modern CUDA C++, NVIDIA (2026); Machine Learning
+  Specialization, DeepLearning.AI on Coursera (2025); IBM Data Science Professional Certificate, IBM on Coursera
+  (2025); Associate Data Engineer in SQL track, DataCamp (2025)}
+
+\end{document}

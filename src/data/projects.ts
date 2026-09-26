@@ -114,6 +114,104 @@ export const projects: ProjectEntry[] = [
     ],
   },
   {
+    slug: 'chest-xray-classification',
+    seoDescription: 'Group coursework: chest X-ray classification comparing a small CNN, EfficientNet-B3, Swin V2-S and MaxViT-T under 5-fold CV. Not clinically validated.',
+    title: 'Chest X-ray classification',
+    problem:
+      'With about 3,500 labelled chest X-rays, is it better to train a small network from scratch or to adapt a large ImageNet model, and how far can the headline score be trusted?',
+    description:
+      'A four-person group assignment for COMP534 Applied AI at the University of Liverpool. On a course-provided set of 3,475 chest X-rays labelled Normal, Opacity or viral Pneumonia, the team compared a custom 116,931-parameter CNN with EfficientNet-B3, Swin V2-S and MaxViT-T, each trained from scratch, as a frozen feature extractor and fine-tuned, under stratified 5-fold cross-validation. The selected model, a fine-tuned Swin V2-S, reached a macro-F1 of 0.948 and Cohen’s κ of 0.92 on a 695-image held-out split.',
+    cv: 'Group coursework (team of four): three-class chest X-ray classification comparing a 117K-parameter CNN with EfficientNet-B3, Swin V2-S and MaxViT-T under three training strategies; test macro-F1 0.948 from a single run, not clinically validated.',
+    highlight:
+      'Pretraining mattered more than architecture. Trained from scratch on the same 20-epoch budget, Swin V2-S failed to train (cross-validation macro-F1 0.29; two of the five folds predicted a single class) and MaxViT-T ranged from 0.32 to 0.86 across folds, while the 116,931-parameter custom CNN reached 0.87. Starting from ImageNet weights and fine-tuned, all three pretrained models scored between 0.94 and 0.95.',
+    tags: ['PyTorch', 'medical imaging', 'transfer learning', 'Swin V2', 'cross-validation'],
+    domain: 'Medical imaging',
+    year: '2026',
+    figure: 'xray',
+    featured: true,
+    note: 'Group coursework for COMP534 Applied AI (MSc, University of Liverpool) with Ainur Smailova, Nattanan Sottivorakun and Laura Valentina Sierra Peña. Results come from a single run and are not clinically validated. The code sits in a course repository alongside assessment materials, so it is not linked.',
+    detail: {
+      problem: [
+        'The task was to sort chest X-rays into three classes (Normal, lung Opacity and viral Pneumonia) using 3,475 images supplied by the course. That is small for modern vision models, so the choice between a compact network trained from scratch and a large pretrained one is a real question rather than a formality.',
+        'This was a four-person group assignment for COMP534 Applied AI (MSc Data Science and Artificial Intelligence, University of Liverpool), with Ainur Smailova, Nattanan Sottivorakun and Laura Valentina Sierra Peña. What follows describes the team’s work; individual contributions are not separated.',
+      ],
+      system: [
+        'Images are resized to each model’s input resolution (300 pixels for EfficientNet-B3 and the custom CNN, 256 for Swin V2-S, 224 for MaxViT-T), contrast-equalised with CLAHE and normalised with ImageNet statistics. Training adds horizontal flips, small rotations, brightness and contrast changes, elastic deformation and Gaussian noise; with probability 0.5 a batch is mixed with MixUp or CutMix, and unmixed batches use label smoothing of 0.1.',
+        'A stratified 80/20 split sets aside 695 test images. On the remaining 2,780, ten configurations are scored by stratified 5-fold cross-validation: the custom CNN from scratch, and EfficientNet-B3, Swin V2-S and MaxViT-T each trained from scratch, as a frozen feature extractor with a new head, and fine-tuned with the early stages frozen and the later ones trained at a tenth of the head’s learning rate. Every run uses AdamW, cosine annealing over at most 20 epochs and early stopping on validation loss.',
+        'The configuration with the best mean validation macro-F1, fine-tuned Swin V2-S, is retrained on 2,502 images with a 278-image holdout for early stopping, then evaluated on the test split with five-pass test-time augmentation (the image as is, flipped, rotated by ±5° and with a mild brightness and contrast change).',
+      ],
+      architecture: [
+        {
+          label: 'Data',
+          nodes: [
+            { title: '3,475 chest X-rays', detail: 'Normal 1,250 · Opacity 1,125 · Pneumonia 1,100' },
+            { title: 'Stratified split', detail: '2,780 for model selection, 695 held out' },
+          ],
+        },
+        {
+          label: 'Preprocess',
+          nodes: [
+            { title: 'Resize and CLAHE', detail: '224–300 px per model; clip 2.0, 8×8 tiles' },
+            { title: 'Augmentation', detail: 'flips, rotation, elastic, noise, MixUp/CutMix' },
+            { title: 'Balanced sampler', detail: 'rebuilt from each fold’s training labels' },
+          ],
+        },
+        {
+          label: 'Models',
+          nodes: [
+            { title: 'Custom CNN', detail: 'depthwise-separable, 116,931 parameters' },
+            { title: 'EfficientNet-B3', detail: '10.7M parameters' },
+            { title: 'Swin V2-S', detail: '49.0M parameters' },
+            { title: 'MaxViT-T', detail: '30.4M parameters' },
+          ],
+        },
+        {
+          label: 'Select',
+          nodes: [
+            { title: 'Stratified 5-fold CV', detail: '10 configurations, mean macro-F1' },
+            { title: 'Fine-tuned Swin V2-S', detail: '0.953 ± 0.011' },
+          ],
+        },
+        {
+          label: 'Test',
+          nodes: [
+            { title: 'Retrain', detail: '2,502 train, 278 early-stopping holdout' },
+            { title: 'Five-pass TTA', detail: '695 held-out images' },
+            { title: 'Macro-F1 0.948', detail: 'Cohen’s κ 0.920' },
+          ],
+        },
+      ],
+      decisions: [
+        {
+          title: 'Compare training strategies, not only architectures',
+          body: 'Each pretrained architecture was run three ways, so the effect of ImageNet initialisation could be separated from the architecture itself. That is where the clearest result came from: from scratch, both transformers were unreliable at this data size, while fine-tuned they were the two strongest models in cross-validation.',
+        },
+        {
+          title: 'Keep a small network as a reference point',
+          body: 'The custom network uses depthwise-separable convolutions and has 116,931 parameters, about 1% of EfficientNet-B3’s 10.7 million. Trained from scratch it reached a cross-validation macro-F1 of 0.869, against 0.903 for EfficientNet-B3 trained from scratch, which puts the gains from size and from pretraining in proportion.',
+        },
+        {
+          title: 'Balance batches with a sampler, not loss weights',
+          body: 'A weighted random sampler, rebuilt from each fold’s own training labels so that the validation fold never informs it, gives batches roughly equal class counts. Class weights in the loss were left out, since using both would correct for the imbalance twice.',
+        },
+        {
+          title: 'Select on macro-F1 rather than accuracy',
+          body: 'The classes are only mildly imbalanced (1.14 : 1), but accuracy still lets the largest class dominate, so configurations were ranked by mean validation macro-F1, which weights the three classes equally. The test evaluation also reports Cohen’s κ, MCC, log loss and balanced accuracy.',
+        },
+      ],
+      evaluation: [
+        'On the 695 test images the fine-tuned Swin V2-S reached a macro-F1 of 0.948, Cohen’s κ and MCC of 0.920, and balanced accuracy of 0.948, with per-class recall of 0.932 for Normal, 0.924 for Opacity and 0.986 for Pneumonia. Of its 37 errors, 32 were confusions between Normal and Opacity (15 one way, 17 the other); three Pneumonia images were predicted Normal and two Normal images Pneumonia.',
+        'Three qualifications apply. The test split was not untouched: an earlier version of the notebook had already evaluated an EfficientNet-B3 model on it (macro-F1 0.9478), and Swin V2-S’s lead in cross-validation did not show up there (0.9479). The cross-validation scores are optimistic, because each fold is scored at its best validation epoch on the same fold that drives early stopping. And every configuration was run once, with fixed seeds and no repeats.',
+      ],
+      limitations: [
+        'The Pneumonia class very likely differs from the other two in patient age and image source. The dataset’s origin is not documented, but its classes and 299 × 299 images match a public COVID-19 chest X-ray collection whose viral pneumonia images are paediatric, and sampled Pneumonia images here are visibly of children while most Normal and Opacity images are of adults. The near-perfect Pneumonia score may partly reflect that difference, and it was not controlled for.',
+        'Nothing here is clinically validated. There is no external test set, and no clinician reviewed the predictions or the Grad-CAM and HiResCAM heatmaps the notebook produces.',
+        'All from-scratch runs used one learning rate (10⁻³) and at most 20 epochs, so the transformers’ failure from scratch may reflect those settings as much as the size of the dataset.',
+        'One run per configuration: the spread across folds is the only estimate of variance.',
+      ],
+    },
+  },
+  {
     slug: 'receipt-extraction',
     seoDescription: 'Receipt field extraction combining EasyOCR, a rule parser and LayoutLMv3, with SROIE and rule-derived pseudo-labels weighted by source.',
     title: 'Hybrid receipt extraction',

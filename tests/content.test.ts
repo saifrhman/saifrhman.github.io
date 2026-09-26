@@ -56,8 +56,11 @@ describe('projects', () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
-  it('link to a repository on the owner’s GitHub', () => {
-    for (const p of projects) expect(p.repo, p.title).toMatch(/^https:\/\/github\.com\/saifrhman\/[\w.-]+$/);
+  it('link to a repository on the owner’s GitHub, or say why not', () => {
+    for (const p of projects) {
+      if (p.repo) expect(p.repo, p.title).toMatch(/^https:\/\/github\.com\/saifrhman\/[\w.-]+$/);
+      else expect(p.note, `${p.title} has no repo, so its note must say why`).toMatch(/not linked/);
+    }
   });
 
   it('carry between three and six technology labels', () => {
@@ -89,7 +92,7 @@ describe('links', () => {
     const hrefs = [
       ...research.flatMap((r) => r.links.map((l) => l.href)),
       ...publications.flatMap((p) => p.links.map((l) => l.href)),
-      ...projects.flatMap((p) => [p.repo, ...(p.demo ? [p.demo] : [])]),
+      ...projects.flatMap((p) => [...(p.repo ? [p.repo] : []), ...(p.demo ? [p.demo] : [])]),
       ...contactLinks.map((l) => l.href),
       ...competitions.flatMap((c) => (c.href ? [c.href] : [])),
     ];

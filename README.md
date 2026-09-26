@@ -2,7 +2,7 @@
 
 Source for [saifrhman.github.io](https://saifrhman.github.io), the research and ML-engineering portfolio of Saif Ur Rehman.
 
-It is a static site built with [Astro](https://astro.build) and TypeScript. Every page is rendered to plain HTML at build time. The only client-side JavaScript is a small theme toggle, a scroll-reveal helper and the hero figure controller (about 3 kB gzipped). three.js loads only when it is actually used.
+It is a static site built with [Astro](https://astro.build) and TypeScript. Every page is rendered to plain HTML at build time. The only client-side JavaScript is a small theme toggle and the hero figure controller; scroll reveals are pure CSS. three.js loads only when it is actually used.
 
 ## Stack
 
@@ -30,11 +30,13 @@ src/
   lib/            status.ts (status and venue rules), structures.ts (hero geometry),
                   structured-data.ts (JSON-LD), random.ts, text.ts
   pages/          index, research, projects (+ [slug] detail pages), about, cv, 404
-  scripts/        Client scripts: theme, reveal, hero-figure, hero-scene (three.js)
+  scripts/        Client scripts: theme, hero-figure, hero-scene (three.js)
   styles/         tokens.css, base.css, figures.css
   assets/         Images that go through Astro's image pipeline (converted to WebP)
-public/           favicon, og.png, robots.txt, cv/ (generated CV PDF and résumé PDF)
-scripts/          render-assets.mjs (renders og.png); resume/build.sh (compiles the résumé PDF)
+public/           favicon, og.png, robots.txt, images/ (portrait for structured data),
+                  cv/ (the compiled résumé PDF)
+resume/           LaTeX source of the résumé and build.sh, which compiles it
+scripts/          render-assets.mjs (renders og.png)
 tests/            Vitest suites (content, status rules, geometry, built output)
 ```
 
@@ -109,7 +111,7 @@ Add an entry to `src/data/projects.ts`:
 
 - `problem`, `description`, `highlight`: what problem it solves, what was built, and the single most interesting technical detail.
 - `tags`: 3 to 6 labels (tested).
-- `repo`: required. `demo`: only if a working deployment exists.
+- `repo`: the public repository. Omit it only when the code cannot be linked (coursework, for example), and say why in `note`; a test enforces this. `demo`: only if a working deployment exists.
 - `featured: true` puts it on the home page.
 - `detail`: add this object (problem, system, architecture stages, decisions, evaluation, limitations) to generate a page at `/projects/<slug>/`. Every section must be non-empty.
 - `images`: screenshots or plots in `src/assets/…`, with alt text and a caption that says what the image does and does not show.

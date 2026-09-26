@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site } from '@/data/site';
 ---
 
 <BaseLayout title="Page not found" description="The page you requested does not exist on saifrhman.github.io." noindex>
@@ -7,13 +8,23 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     <p class="label">404</p>
     <h1>This page does not exist.</h1>
     <p class="text">
-      It may have moved when the site was rebuilt. The research, projects and CV are all reachable from here:
+      It may have moved when the site was rebuilt. The research, projects, CV and résumé are all reachable from here:
     </p>
     <ul role="list">
       <li><a class="arrow-link" href="/">Home</a></li>
       <li><a class="arrow-link" href="/research/">Research</a></li>
       <li><a class="arrow-link" href="/projects/">Projects</a></li>
+      <li><a class="arrow-link" href="/about/">About</a></li>
       <li><a class="arrow-link" href="/cv/">CV</a></li>
+      {
+        site.cv.resume && (
+          <li>
+            <a class="arrow-link" href={site.cv.resume} download="Saif-Ur-Rehman-Resume.pdf">
+              Résumé (PDF)
+            </a>
+          </li>
+        )
+      }
     </ul>
   </div>
 </BaseLayout>

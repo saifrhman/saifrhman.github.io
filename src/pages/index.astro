@@ -35,6 +35,13 @@ const current = experience[0]!;
         <li><a href={site.github} rel="noopener">GitHub</a></li>
         <li><a href={site.linkedin} rel="noopener">LinkedIn</a></li>
         <li><a href={site.cv.page}>CV</a></li>
+        {
+          site.cv.resume && (
+            <li>
+              <a href={site.cv.resume} download="Saif-Ur-Rehman-Resume.pdf">Résumé (PDF)</a>
+            </li>
+          )
+        }
         <li><a href={`mailto:${site.email}`}>Email</a></li>
       </ul>
     </div>

@@ -94,6 +94,7 @@ export const skills: SkillGroup[] = [
     title: 'Research and ML',
     items: [
       'PyTorch',
+      'Transfer learning for image classification',
       'RL fine-tuning of LLMs (LoRA, REINFORCE)',
       'Retrieval-augmented generation',
       'Weak supervision',

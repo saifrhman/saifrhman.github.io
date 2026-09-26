@@ -9,6 +9,7 @@ import TacticalFigure from './TacticalFigure.astro';
 import LakehouseFigure from './LakehouseFigure.astro';
 import ReceiptFigure from './ReceiptFigure.astro';
 import BayesOptFigure from './BayesOptFigure.astro';
+import XrayFigure from './XrayFigure.astro';
 
 interface Props {
   kind: FigureKind;
@@ -24,6 +25,7 @@ const components = {
   lakehouse: LakehouseFigure,
   receipt: ReceiptFigure,
   bayesopt: BayesOptFigure,
+  xray: XrayFigure,
 } satisfies Record<FigureKind, unknown>;
 
 const { kind } = Astro.props;

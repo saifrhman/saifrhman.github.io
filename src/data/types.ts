@@ -52,7 +52,8 @@ export type FigureKind =
   | 'tactical'
   | 'lakehouse'
   | 'receipt'
-  | 'bayesopt';
+  | 'bayesopt'
+  | 'xray';
 
 export interface ImageRef {
   /** Path relative to src/assets, e.g. "projects/f1-eval.png". */
@@ -120,7 +121,11 @@ export interface ProjectEntry {
   tags: string[];
   domain: string;
   year: string;
-  repo: string;
+  /**
+   * Public source repository on the owner's GitHub. Omit only when the code
+   * cannot be linked (e.g. coursework), and say so in `note`.
+   */
+  repo?: string;
   demo?: string;
   figure: FigureKind;
   /** Prominent card on the home page. */

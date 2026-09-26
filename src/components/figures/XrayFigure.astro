@@ -1,0 +1,150 @@
+---
+/** CV macro-F1 by architecture and training strategy, and the test confusion matrix, from the submitted notebook. */
+import { XRAY_CV, XRAY_CLASSES, XRAY_CONFUSION, XRAY_TEST, type Strategy } from '@/data/figures/xray-results';
+import { r1 } from '@/lib/random';
+
+const W = 400;
+const H = 300;
+
+// Top panel: dot plot, one row per architecture, strategies dodged within a row.
+const models = [...new Set(XRAY_CV.map((r) => r.model))];
+const shortName: Record<string, string> = {
+  'Custom CNN': 'custom CNN',
+  'EfficientNet-B3': 'EffNet-B3',
+  'Swin V2-S': 'Swin V2-S',
+  'MaxViT-T': 'MaxViT-T',
+};
+const plot = { l: 84, r: 388, top: 44, rowGap: 26 };
+const xMin = 0.1;
+const xMax = 1;
+const x = (v: number) => r1(plot.l + ((Math.max(v, xMin) - xMin) / (xMax - xMin)) * (plot.r - plot.l));
+const rowY = (i: number) => plot.top + 10 + i * plot.rowGap;
+const dodge: Record<Strategy, number> = { scratch: -7, frozen: 0, finetune: 7 };
+const plotBottom = rowY(models.length - 1) + 14;
+const ticks = [0.2, 0.4, 0.6, 0.8, 1];
+
+const points = XRAY_CV.map((r) => {
+  const i = models.indexOf(r.model);
+  const alone = XRAY_CV.filter((o) => o.model === r.model).length === 1;
+  return { ...r, cx: x(r.mean), cy: rowY(i) + (alone ? 0 : dodge[r.strategy]), lo: x(r.mean - r.sd), hi: x(r.mean + r.sd) };
+});
+const barClass: Record<Strategy, string> = { scratch: 's-ink thin', frozen: 's-muted thin', finetune: 's-accent medium' };
+const swinScratch = points.find((p) => p.model === 'Swin V2-S' && p.strategy === 'scratch')!;
+const maxvitScratch = points.find((p) => p.model === 'MaxViT-T' && p.strategy === 'scratch')!;
+
+// Bottom panel: confusion matrix.
+const cm = { x: 84, y: 216, w: 54, h: 24 };
+const errors = XRAY_CONFUSION.flatMap((row, i) => row.filter((_, j) => j !== i)).reduce((a, b) => a + b, 0);
+const normalOpacity = XRAY_CONFUSION[0]![1]! + XRAY_CONFUSION[1]![0]!;
+
+const cvText = XRAY_CV.map(
+  (r) => `${r.model} ${r.strategy === 'finetune' ? 'fine-tuned' : r.strategy === 'frozen' ? 'frozen features' : 'from scratch'} ${r.mean.toFixed(3)} ± ${r.sd.toFixed(3)}`,
+).join('; ');
+const cmText = XRAY_CLASSES.map((c, i) => `true ${c}: ${XRAY_CLASSES.map((p, j) => `${XRAY_CONFUSION[i]![j]} predicted ${p}`).join(', ')}`).join('; ');
+---
+
+<svg
+  class="fig"
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-label={`Two panels from a group coursework chest X-ray classifier. Top: five-fold cross-validation macro-F1, mean and standard deviation: ${cvText}. Bottom: confusion matrix of the fine-tuned Swin V2-S on ${XRAY_TEST.n} held-out test images, ${cmText}. Test macro-F1 ${XRAY_TEST.macroF1.toFixed(3)}, Cohen's kappa ${XRAY_TEST.kappa.toFixed(3)}. Single run; not clinically validated.`}
+>
+  <text class="t-muted" x="12" y="18">cross-validation macro-F1, mean ± s.d.</text>
+
+  <g class="legend">
+    <circle class="s-ink thin f-surface" cx={plot.l + 4} cy="31" r="3.2"></circle>
+    <text class="t-small" x={plot.l + 11} y="34">scratch</text>
+    <rect class="f-muted" x={plot.l + 70} y="28.2" width="5.6" height="5.6"></rect>
+    <text class="t-small" x={plot.l + 80} y="34">frozen</text>
+    <circle class="f-accent" cx={plot.l + 136} cy="31" r="3.4"></circle>
+    <text class="t-small" x={plot.l + 143} y="34">fine-tuned</text>
+  </g>
+
+  {
+    ticks.map((t) => (
+      <g>
+        <line class="s-rule hair" x1={x(t)} x2={x(t)} y1={plot.top} y2={plotBottom} />
+        <text class="t-muted t-small" x={x(t)} y={plotBottom + 11} text-anchor="middle">
+          {t.toFixed(1)}
+        </text>
+      </g>
+    ))
+  }
+  {
+    models.map((m, i) => (
+      <text class="t-small" x={plot.l - 8} y={rowY(i) + 3} text-anchor="end">
+        {shortName[m] ?? m}
+      </text>
+    ))
+  }
+  {points.map((p) => <line class={barClass[p.strategy]} x1={p.lo} x2={p.hi} y1={p.cy} y2={p.cy} />)}
+  {
+    points.map((p) =>
+      p.strategy === 'scratch' ? (
+        <circle class="s-ink thin f-surface" cx={p.cx} cy={p.cy} r="3.2" />
+      ) : p.strategy === 'frozen' ? (
+        <rect class="f-muted" x={p.cx - 2.8} y={p.cy - 2.8} width="5.6" height="5.6" />
+      ) : (
+        <circle class="f-accent" cx={p.cx} cy={p.cy} r="3.4" />
+      ),
+    )
+  }
+  <text class="t-small" x={swinScratch.lo - 5} y={swinScratch.cy + 3} text-anchor="end">
+    {swinScratch.mean.toFixed(2)}
+  </text>
+  <text class="t-small" x={maxvitScratch.cx} y={maxvitScratch.cy - 6} text-anchor="middle">
+    {maxvitScratch.mean.toFixed(2)} ± {maxvitScratch.sd.toFixed(2)}
+  </text>
+
+  <line class="s-rule hair" x1="12" x2={W - 12} y1="172" y2="172"></line>
+  <text class="t-muted" x="12" y="190">held-out test, fine-tuned Swin V2-S (n = {XRAY_TEST.n})</text>
+
+  <text class="t-muted t-small" x={cm.x - 8} y={cm.y - 5} text-anchor="end">true \ pred</text>
+  {
+    XRAY_CLASSES.map((c, j) => (
+      <text class="t-small" x={cm.x + j * cm.w + cm.w / 2} y={cm.y - 5} text-anchor="middle">
+        {c}
+      </text>
+    ))
+  }
+  {
+    XRAY_CLASSES.map((c, i) => (
+      <text class="t-small" x={cm.x - 8} y={cm.y + i * cm.h + cm.h / 2 + 3} text-anchor="end">
+        {c}
+      </text>
+    ))
+  }
+  {
+    XRAY_CONFUSION.map((row, i) =>
+      row.map((n, j) => (
+        <g>
+          <rect
+            class={i === j ? 'f-accent-soft' : n >= 10 ? 'f-soft' : 'f-surface'}
+            x={cm.x + j * cm.w}
+            y={cm.y + i * cm.h}
+            width={cm.w}
+            height={cm.h}
+          />
+          <text
+            class={i === j ? 't-strong' : n === 0 ? 't-muted' : ''}
+            x={cm.x + j * cm.w + cm.w / 2}
+            y={cm.y + i * cm.h + cm.h / 2 + 3.5}
+            text-anchor="middle"
+          >
+            {n}
+          </text>
+        </g>
+      )),
+    )
+  }
+  <rect class="s-rule thin" x={cm.x} y={cm.y} width={cm.w * 3} height={cm.h * 3}></rect>
+
+  <g transform={`translate(${cm.x + cm.w * 3 + 18} ${cm.y + 10})`}>
+    <text class="t-muted t-small" x="0" y="0">macro-F1</text>
+    <text class="t-strong" x="0" y="14">{XRAY_TEST.macroF1.toFixed(3)}</text>
+    <text class="t-muted t-small" x="62" y="0">Cohen’s κ</text>
+    <text class="t-strong" x="62" y="14">{XRAY_TEST.kappa.toFixed(3)}</text>
+    <text class="t-small" x="0" y="38">{normalOpacity} of {errors} errors are</text>
+    <text class="t-small" x="0" y="51">Normal ↔ Opacity</text>
+  </g>
+</svg>

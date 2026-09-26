@@ -19,7 +19,11 @@ const headingId = `project-${project.slug}`;
 <article class:list={['project-card', `is-${variant}`]} aria-labelledby={headingId} data-reveal>
   <div class="figure">
     <Figure kind={project.figure} />
-    <a class="figure-hit" href={detailHref ?? project.repo} tabindex="-1" aria-hidden="true"></a>
+    {
+      (detailHref ?? project.repo) && (
+        <a class="figure-hit" href={detailHref ?? project.repo} tabindex="-1" aria-hidden="true" />
+      )
+    }
   </div>
   <div class="text">
     <p class="label meta">{project.domain}<span class="nowrap"> · {project.year}</span></p>
@@ -50,11 +54,15 @@ const headingId = `project-${project.slug}`;
           </li>
         )
       }
-      <li>
-        <a class="arrow-link" href={project.repo} data-external rel="noopener" aria-label={`${project.title}: source code on GitHub`}>
-          Code
-        </a>
-      </li>
+      {
+        project.repo && (
+          <li>
+            <a class="arrow-link" href={project.repo} data-external rel="noopener" aria-label={`${project.title}: source code on GitHub`}>
+              Code
+            </a>
+          </li>
+        )
+      }
       {
         project.demo && (
           <li>

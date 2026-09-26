@@ -113,9 +113,11 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
             <div class="item">
               <div class="item-head">
                 <h3>{p.title}</h3>
-                <p class="dates repo">
-                  <a href={p.repo}>{host(p.repo)}</a>
-                </p>
+                {p.repo && (
+                  <p class="dates repo">
+                    <a href={p.repo}>{host(p.repo)}</a>
+                  </p>
+                )}
               </div>
               <p>{p.cv}</p>
             </div>

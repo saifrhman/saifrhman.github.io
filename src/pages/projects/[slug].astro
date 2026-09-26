@@ -54,20 +54,26 @@ const sections = [
           <p class="description">{project.description}</p>
           {project.note && <p class="note">{project.note}</p>}
           <TechTag tags={project.tags} label={`${project.title} technologies`} />
-          <ul class="links" role="list">
-            <li>
-              <a class="arrow-link" href={project.repo} data-external rel="noopener">Source on GitHub</a>
-            </li>
-            {
-              project.demo && (
-                <li>
-                  <a class="arrow-link" href={project.demo} data-external rel="noopener">
-                    Live demo
-                  </a>
-                </li>
-              )
-            }
-          </ul>
+          {
+            (project.repo || project.demo) && (
+              <ul class="links" role="list">
+                {project.repo && (
+                  <li>
+                    <a class="arrow-link" href={project.repo} data-external rel="noopener">
+                      Source on GitHub
+                    </a>
+                  </li>
+                )}
+                {project.demo && (
+                  <li>
+                    <a class="arrow-link" href={project.demo} data-external rel="noopener">
+                      Live demo
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )
+          }
         </div>
         <div class="head-figure">
           <Figure kind={project.figure} />

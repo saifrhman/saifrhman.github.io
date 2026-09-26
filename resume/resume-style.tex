@@ -1,6 +1,6 @@
 % Layout for saif-ur-rehman-resume.tex. Black text on white, Charter,
 % small-caps section rules, bold titles with right-aligned dates.
-\usepackage[a4paper,left=1.45cm,right=1.45cm,top=1.2cm,bottom=1.2cm]{geometry}
+\usepackage[a4paper,left=1.35cm,right=1.35cm,top=1.1cm,bottom=1.1cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{XCharter}
@@ -21,20 +21,22 @@
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
-\linespread{1.02}
+\linespread{1.0}
 \color{black}
 
 \titleformat{\section}{\large\scshape}{}{0pt}{}[\vspace{-0.9ex}\rule{\textwidth}{0.4pt}]
-\titlespacing*{\section}{0pt}{1.5ex}{0.9ex}
+\titlespacing*{\section}{0pt}{1.25ex}{0.8ex}
 
-\setlist[itemize]{leftmargin=1.05em,label={\small\textbullet},itemsep=0.15ex,topsep=0.35ex,parsep=0pt,partopsep=0pt}
+\setlist[itemize]{leftmargin=1.05em,label={\small\textbullet},itemsep=0.1ex,topsep=0.3ex,parsep=0pt,partopsep=0pt}
 
 % \entry{title}{dates}{left meta}{right meta}
 \newcommand{\entry}[4]{%
-  \par\textbf{#1}\hfill{\small #2}\par
-  \if\relax\detokenize{#3#4}\relax\else{\small\itshape #3}\hfill{\small\itshape #4}\par\fi}
-% \project{title}{link text}{url}{stack}
+  \par\textbf{#1}\hfill{\small #2}\par\nopagebreak
+  \if\relax\detokenize{#3#4}\relax\else{\small\itshape #3}\hfill{\small\itshape #4}\par\nopagebreak\fi}
+% \project{title}{link text}{url}{stack}; with an empty url the link text is plain.
 \newcommand{\project}[4]{%
-  \par\textbf{#1}\hfill{\small\href{#3}{#2}}\par
-  \if\relax\detokenize{#4}\relax\else{\small\itshape #4}\par\fi}
-\newcommand{\gap}{\par\vspace{0.7ex}}
+  \par\textbf{#1}\hfill{\small\if\relax\detokenize{#3}\relax #2\else\href{#3}{#2}\fi}\par\nopagebreak
+  \if\relax\detokenize{#4}\relax\else{\small\itshape #4}\par\nopagebreak\fi}
+\newcommand{\gap}{\par\vspace{0.55ex}}
+% \skill{label}{items}: one line of the skills list, wrapped lines indented.
+\newcommand{\skill}[2]{\par\hangindent=1em\hangafter=1\textbf{#1:} #2\par}
