@@ -23,7 +23,7 @@ const src = (await loader()).default;
 ---
 
 <figure class="evidence-image">
-  <div class="frame">
+  <a class="frame" href={src.src} aria-label={`${image.alt} (open full size)`}>
     <Image
       src={src}
       alt={image.alt}
@@ -34,12 +34,13 @@ const src = (await loader()).default;
       format="webp"
       quality={82}
     />
-  </div>
+  </a>
   {image.caption && <figcaption>{image.caption}</figcaption>}
 </figure>
 
 <style>
   .frame {
+    display: block;
     border: var(--border);
     border-radius: var(--radius-md);
     background: #fff;
@@ -49,6 +50,17 @@ const src = (await loader()).default;
   img {
     width: 100%;
     height: auto;
+  }
+
+  /* Light screenshots glare on the dark theme. */
+  :global(:root[data-theme='dark']) img {
+    filter: brightness(0.88);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) img {
+      filter: brightness(0.88);
+    }
   }
 
   figcaption {

@@ -24,13 +24,15 @@ describe('hero structures', () => {
     }
   });
 
-  it('project inside the hero stage with a margin, cameras included', () => {
-    const margin = 16;
-    for (const id of STRUCTURE_IDS) {
+  it('project inside the hero stage with a margin, cameras included, at any pointer tilt', () => {
+    const margin = 8;
+    // The WebGL parallax tilts by at most ±0.16 rad of yaw and ±0.07 rad of pitch.
+    const tilts = [{}, { yaw: 0.16, pitch: 0.07 }, { yaw: -0.16, pitch: -0.07 }, { yaw: 0.16, pitch: -0.07 }, { yaw: -0.16, pitch: 0.07 }];
+    for (const id of STRUCTURE_IDS) for (const tilt of tilts) {
       const s = structures[id];
       const coords = [...s.points, ...s.segments];
       for (let i = 0; i < coords.length; i += 3) {
-        const p = project([coords[i]!, coords[i + 1]!, coords[i + 2]!], 560, 520);
+        const p = project([coords[i]!, coords[i + 1]!, coords[i + 2]!], 560, 520, tilt);
         expect(p.x, `${id} x`).toBeGreaterThan(margin);
         expect(p.x, `${id} x`).toBeLessThan(560 - margin);
         expect(p.y, `${id} y`).toBeGreaterThan(margin);

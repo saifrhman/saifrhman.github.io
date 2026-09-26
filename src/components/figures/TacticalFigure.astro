@@ -28,8 +28,8 @@ function variant(seed: number, spread: number, flipY: boolean) {
   const rand = mulberry32(seed);
   const clamp = (v: number, limit: number) => Math.max(-limit, Math.min(limit, v));
   const move = ([x, y]: [number, number]): [number, number] => [
-    clamp(x + gaussian(rand) * spread, 51),
-    clamp((flipY ? -y : y) + gaussian(rand) * spread, 33),
+    clamp(x + gaussian(rand) * spread, 50.5),
+    clamp((flipY ? -y : y) + gaussian(rand) * spread, 32),
   ];
   return { home: home.map(move), away: away.map(move), ball: move(ball) };
 }

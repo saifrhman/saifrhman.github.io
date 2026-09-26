@@ -376,8 +376,13 @@ export function rotate(p: Vec3, yaw = VIEW.yaw, pitch = VIEW.pitch): Vec3 {
  * (0, 0, VIEW.distance) looking at the origin. Returns pixel coordinates for a
  * viewport of the given size plus the view-space depth.
  */
-export function project(p: Vec3, width: number, height: number): { x: number; y: number; depth: number } {
-  const [x, y, z] = rotate(p);
+export function project(
+  p: Vec3,
+  width: number,
+  height: number,
+  tilt: { yaw?: number; pitch?: number } = {},
+): { x: number; y: number; depth: number } {
+  const [x, y, z] = rotate(p, VIEW.yaw + (tilt.yaw ?? 0), VIEW.pitch + (tilt.pitch ?? 0));
   const zc = VIEW.distance - z;
   const f = 1 / Math.tan((VIEW.fov * Math.PI) / 360);
   const aspect = width / height;
