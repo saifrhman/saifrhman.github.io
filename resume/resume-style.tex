@@ -1,0 +1,40 @@
+% Layout for saif-ur-rehman-resume.tex. Black text on white, Charter,
+% small-caps section rules, bold titles with right-aligned dates.
+\usepackage[a4paper,left=1.45cm,right=1.45cm,top=1.2cm,bottom=1.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{XCharter}
+\usepackage[protrusion=true,expansion=true]{microtype}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+  hidelinks,
+  pdftitle={Saif Ur Rehman - Resume},
+  pdfauthor={Saif Ur Rehman},
+  pdfsubject={Machine learning engineer and AI researcher},
+  pdflang={en-GB},
+  pdfdisplaydoctitle=true,
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\linespread{1.02}
+\color{black}
+
+\titleformat{\section}{\large\scshape}{}{0pt}{}[\vspace{-0.9ex}\rule{\textwidth}{0.4pt}]
+\titlespacing*{\section}{0pt}{1.5ex}{0.9ex}
+
+\setlist[itemize]{leftmargin=1.05em,label={\small\textbullet},itemsep=0.15ex,topsep=0.35ex,parsep=0pt,partopsep=0pt}
+
+% \entry{title}{dates}{left meta}{right meta}
+\newcommand{\entry}[4]{%
+  \par\textbf{#1}\hfill{\small #2}\par
+  \if\relax\detokenize{#3#4}\relax\else{\small\itshape #3}\hfill{\small\itshape #4}\par\fi}
+% \project{title}{link text}{url}{stack}
+\newcommand{\project}[4]{%
+  \par\textbf{#1}\hfill{\small\href{#3}{#2}}\par
+  \if\relax\detokenize{#4}\relax\else{\small\itshape #4}\par\fi}
+\newcommand{\gap}{\par\vspace{0.7ex}}

@@ -21,14 +21,12 @@ export const site = {
   github: 'https://github.com/saifrhman',
   linkedin: 'https://www.linkedin.com/in/saifurrhmn/',
   /**
-   * CV. `page` is the printable HTML CV built from the data files, and `pdf`
-   * is that page rendered to PDF by `npm run assets`. `resume` is the
-   * separately maintained résumé PDF. Set either file to null to hide its link.
+   * CV. `page` is the printable HTML CV built from the data files. `resume` is
+   * the downloadable PDF built from resume/saif-ur-rehman-resume.tex with
+   * `npm run resume` (null hides the download links).
    */
   cv: {
     page: '/cv/',
-    pdf: '/cv/saif-ur-rehman-cv.pdf' as string | null,
-    /** The résumé document itself (replace the file to update it; null hides the links). */
     resume: '/cv/saif-ur-rehman-resume.pdf' as string | null,
   },
   contactNote:

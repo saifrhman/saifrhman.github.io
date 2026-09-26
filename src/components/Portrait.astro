@@ -1,0 +1,54 @@
+---
+/**
+ * Portrait photo. The source is graded to the site palette (muted, slightly
+ * warm) and dimmed a little on the dark theme so it does not glare.
+ */
+import { Image } from 'astro:assets';
+import photo from '@/assets/profile/saif-ur-rehman.jpg';
+import { site } from '@/data/site';
+
+interface Props {
+  /** Rendered width in CSS pixels. */
+  size?: number;
+  priority?: boolean;
+}
+
+const { size = 176, priority = false } = Astro.props;
+---
+
+<Image
+  class="portrait"
+  src={photo}
+  alt={`${site.name}, smiling, on a beach under an overcast sky`}
+  width={size}
+  height={size}
+  densities={[1, 2]}
+  format="webp"
+  quality={84}
+  loading={priority ? 'eager' : 'lazy'}
+  decoding="async"
+/>
+
+<style>
+  .portrait {
+    display: block;
+    width: 100%;
+    max-width: var(--portrait-size, 11rem);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    border: var(--border);
+    background: var(--color-surface-2);
+  }
+
+  :global(:root[data-theme='dark']) .portrait {
+    filter: brightness(0.9) contrast(1.02);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .portrait {
+      filter: brightness(0.9) contrast(1.02);
+    }
+  }
+</style>

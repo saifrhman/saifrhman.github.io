@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 /**
- * Renders build-derived static assets with a local Chrome/Chromium:
- *   - public/og.png                      social preview image (1200×630)
- *   - public/cv/saif-ur-rehman-cv.pdf    PDF of the /cv/ page
+ * Renders the social preview image (public/og.png, 1200×630) from the built
+ * site with a local Chrome/Chromium, reusing the site's fonts and hero figure.
  *
  * Usage: npm run assets        (builds the site first)
- *        node scripts/render-assets.mjs [og|cv]
  *
  * Set CHROME_PATH if Chrome is not at a standard location. The outputs are
  * committed, so CI never needs a browser.
  */
 import { createServer } from 'node:http';
-import { readFile, stat, mkdir } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,7 +17,6 @@ import { chromium } from 'playwright-core';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const dist = join(root, 'dist');
-const only = process.argv[2];
 
 const candidates = [
   process.env.CHROME_PATH,
@@ -72,23 +69,7 @@ const base = `http://127.0.0.1:${typeof address === 'object' && address ? addres
 const browser = await chromium.launch({ executablePath });
 
 try {
-  if (!only || only === 'cv') {
-    const page = await browser.newPage({ colorScheme: 'light' });
-    await page.goto(`${base}/cv/`, { waitUntil: 'networkidle' });
-    await page.emulateMedia({ media: 'print', colorScheme: 'light' });
-    await mkdir(join(root, 'public', 'cv'), { recursive: true });
-    await page.pdf({
-      path: join(root, 'public', 'cv', 'saif-ur-rehman-cv.pdf'),
-      preferCSSPageSize: true,
-      printBackground: true,
-      tagged: true,
-      outline: true,
-    });
-    await page.close();
-    console.log('wrote public/cv/saif-ur-rehman-cv.pdf');
-  }
-
-  if (!only || only === 'og') {
+  {
     const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1, colorScheme: 'light' });
     await page.goto(`${base}/`, { waitUntil: 'networkidle' });
     // Reuse the site's own fonts and the build-time hero figure (backbone view).

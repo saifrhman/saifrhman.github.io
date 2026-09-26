@@ -4,6 +4,7 @@ import HeroFigure from '@/components/HeroFigure.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import ResearchRow from '@/components/ResearchRow.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
+import Portrait from '@/components/Portrait.astro';
 import { site } from '@/data/site';
 import { research } from '@/data/research';
 import { projects } from '@/data/projects';
@@ -78,6 +79,8 @@ const current = experience[0]!;
         </p>
         <a class="arrow-link" href="/about/">Background and experience</a>
       </div>
+      <div class="side">
+      <Portrait size={144} />
       <dl class="facts">
         <div>
           <dt>Now</dt>
@@ -100,6 +103,7 @@ const current = experience[0]!;
           <dd>{site.location}</dd>
         </div>
       </dl>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -267,6 +271,13 @@ const current = experience[0]!;
 
   .about-text .eyebrow {
     margin-bottom: 0;
+  }
+
+  .side {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    --portrait-size: 9rem;
   }
 
   .facts {

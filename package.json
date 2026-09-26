@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "verify": "npm run lint && npm run check && npm run build && npm run test",
-    "assets": "astro build && node scripts/render-assets.mjs"
+    "assets": "astro build && node scripts/render-assets.mjs",
+    "resume": "bash resume/build.sh"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

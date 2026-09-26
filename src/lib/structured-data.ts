@@ -8,6 +8,7 @@ export function personJsonLd(): Record<string, unknown> {
     name: site.name,
     url: site.url,
     jobTitle: site.role,
+    image: `${site.url}/images/saif-ur-rehman.jpg`,
     email: `mailto:${site.email}`,
     address: { '@type': 'PostalAddress', addressLocality: 'Liverpool', addressCountry: 'GB' },
     affiliation: { '@type': 'CollegeOrUniversity', name: 'University of Liverpool' },

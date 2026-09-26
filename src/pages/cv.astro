@@ -1,8 +1,9 @@
 ---
 /**
  * Printable CV, generated from the same data as the rest of the site so the two
- * cannot drift apart. `npm run assets` prints this page to
- * public/cv/saif-ur-rehman-cv.pdf.
+ * cannot drift apart. The sheet is always black on white, whatever the theme,
+ * on screen and in print. The downloadable résumé is a separate PDF built from
+ * resume/saif-ur-rehman-resume.tex (see the README).
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { site } from '@/data/site';
@@ -23,26 +24,13 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
   <div class="container page">
     <div class="toolbar">
       <p class="label">Curriculum vitae</p>
-      <ul class="downloads" role="list">
-        {
-          site.cv.resume && (
-            <li>
-              <a class="arrow-link" href={site.cv.resume} type="application/pdf">
-                Résumé (PDF)
-              </a>
-            </li>
-          )
-        }
-        {
-          site.cv.pdf && (
-            <li>
-              <a class="arrow-link" href={site.cv.pdf} download>
-                This page as PDF
-              </a>
-            </li>
-          )
-        }
-      </ul>
+      {
+        site.cv.resume && (
+          <a class="download" href={site.cv.resume} download="Saif-Ur-Rehman-Resume.pdf" type="application/pdf">
+            Download résumé (PDF)
+          </a>
+        )
+      }
     </div>
 
     <article class="cv">
@@ -180,19 +168,50 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
     font-size: var(--text-sm);
   }
 
-  .downloads {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-5);
+  .download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    color: var(--color-bg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
   }
 
+  .download::after {
+    content: '↓';
+    content: '↓' / '';
+  }
+
+  .download:hover {
+    background: color-mix(in srgb, var(--color-ink) 86%, var(--color-accent));
+  }
+
+  /* The CV sheet is paper: black on white in every theme. */
   .cv {
+    --color-surface: #fff;
+    --color-ink: #111214;
+    --color-ink-2: #1f2024;
+    --color-ink-3: #3c3e44;
+    --color-rule: #d6d3cb;
+    --color-accent: #111214;
+
+    color-scheme: light;
     max-width: 52rem;
     margin: 0 auto;
     padding: clamp(1.25rem, 1rem + 3vw, 3.5rem);
-    background: var(--color-surface);
-    border: var(--border);
+    background: #fff;
+    color: var(--color-ink);
+    border: 1px solid #d6d3cb;
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-raised);
+  }
+
+  .cv a {
+    color: inherit;
   }
 
   .cv-head {
@@ -355,7 +374,7 @@ const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\
     }
 
     h2 {
-      color: #8f3514;
+      color: #111214;
     }
 
     section {

@@ -34,7 +34,7 @@ src/
   styles/         tokens.css, base.css, figures.css
   assets/         Images that go through Astro's image pipeline (converted to WebP)
 public/           favicon, og.png, robots.txt, cv/ (generated CV PDF and résumé PDF)
-scripts/          render-assets.mjs (renders og.png and the CV PDF)
+scripts/          render-assets.mjs (renders og.png); resume/build.sh (compiles the résumé PDF)
 tests/            Vitest suites (content, status rules, geometry, built output)
 ```
 
@@ -116,19 +116,29 @@ Add an entry to `src/data/projects.ts`:
 
 ### Update the CV
 
-The `/cv/` page is generated from the same data files, so it cannot drift from the site. To regenerate the downloadable PDF after editing content:
+The `/cv/` page is generated from the same data files, so it cannot drift from the site. It is always rendered black-on-white, on screen and in print, whatever theme is active, because a CV is a printed document, not themed UI.
+
+The downloadable résumé is a separate PDF, typeset from `resume/saif-ur-rehman-resume.tex` (Charter, LaTeX) rather than hand-edited, so its content can be reviewed as a diff. To update it:
 
 ```bash
-npm run assets     # builds, then renders public/cv/saif-ur-rehman-cv.pdf and public/og.png
+npm run resume      # compiles resume/saif-ur-rehman-resume.tex to public/cv/saif-ur-rehman-resume.pdf
 ```
 
-This uses a local Chrome or Chromium; set `CHROME_PATH` if it is not found.
-
-The résumé is a separate, hand-maintained PDF at `public/cv/saif-ur-rehman-resume.pdf`, linked from the About page, the CV page and the contact section. To update it, replace that file (keep the name, or change `site.cv.resume` in `src/data/site.ts`). Set `site.cv.resume` or `site.cv.pdf` to `null` to hide the corresponding link.
+This needs a local LaTeX install (`pdflatex`; TeX Live's `scheme-basic` plus `xcharter`, `titlesec`, `enumitem`, `hyperref`, `microtype` is enough). The PDF is always black text on white paper, independent of the site's theme. It is linked from the About page, the CV page and the contact section; set `site.cv.resume` to `null` in `src/data/site.ts` to hide those links.
 
 ### Social preview image
 
-`public/og.png` (1200×630) is rendered by `npm run assets` from the site's own fonts and the hero figure. Edit the layout in `scripts/render-assets.mjs`.
+`public/og.png` (1200×630) is rendered with a local Chrome or Chromium from the site's own fonts and the hero figure:
+
+```bash
+npm run assets      # builds, then renders public/og.png
+```
+
+Set `CHROME_PATH` if a Chrome/Chromium binary isn't found automatically. Edit the layout in `scripts/render-assets.mjs`.
+
+### Portrait
+
+The home and About pages use a graded portrait at `src/assets/profile/saif-ur-rehman.jpg` (muted saturation, warm-neutral tone) rendered through `src/components/Portrait.astro`, which also dims it slightly on the dark theme so it doesn't glare. Replace the source file and re-grade it the same way to update the photo.
 
 ## The hero figure
 
